@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "id": "office",
+  "name": "Office / WPS",
+  "icon": "📊",
+  "built_in": true,
+  "match": {
+    "process": ["WINWORD.EXE", "EXCEL.EXE", "POWERPNT.EXE", "wps.exe", "et.exe", "wpp.exe"],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "common",
+      "name": "通用",
+      "icon": "📝",
+      "slots": [
+        { "r": 0, "c": 0, "span": 1, "key": { "id": "office_copy",   "label": "复制", "sub": "Ctrl+C", "icon": "📋", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "c"} } },
+        { "r": 0, "c": 1, "span": 1, "key": { "id": "office_paste",  "label": "粘贴", "sub": "Ctrl+V", "icon": "📥", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "v"} } },
+        { "r": 0, "c": 2, "span": 1, "key": { "id": "office_cut",    "label": "剪切", "sub": "Ctrl+X", "icon": "✂", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "x"} } },
+        { "r": 0, "c": 3, "span": 1, "key": { "id": "office_undo",   "label": "撤销", "sub": "Ctrl+Z", "icon": "↶", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "z"} } },
+        { "r": 1, "c": 0, "span": 1, "key": { "id": "office_save",   "label": "保存", "sub": "Ctrl+S", "icon": "💾", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "s"} } },
+        { "r": 1, "c": 1, "span": 1, "key": { "id": "office_select", "label": "全选", "sub": "Ctrl+A", "icon": "🔲", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "a"} } },
+        { "r": 1, "c": 2, "span": 1, "key": { "id": "office_find",   "label": "查找", "sub": "Ctrl+F", "icon": "🔍", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "f"} } },
+        { "r": 1, "c": 3, "span": 1, "key": { "id": "office_replace","label": "替换", "sub": "Ctrl+H", "icon": "🔄", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "h"} } },
+        { "r": 2, "c": 0, "span": 2, "key": { "id": "office_bold",   "label": "加粗", "sub": "Ctrl+B", "icon": "𝐁", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "b"} } },
+        { "r": 2, "c": 2, "span": 2, "key": { "id": "office_print",  "label": "打印", "sub": "Ctrl+P", "icon": "🖨", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": true, "shortcut": {"modifiers": ["ctrl"], "key": "p"} } }
+      ]
+    },
+    {
+      "id": "ppt",
+      "name": "PPT",
+      "icon": "🎞",
+      "slots": [
+        { "r": 0, "c": 0, "span": 2, "key": { "id": "ppt_prev",    "label": "上一页", "sub": "PgUp", "icon": "◀", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "pageup"} } },
+        { "r": 0, "c": 2, "span": 2, "key": { "id": "ppt_next",    "label": "下一页", "sub": "PgDn", "icon": "▶", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "pagedown"} } },
+        { "r": 1, "c": 0, "span": 2, "key": { "id": "ppt_first",   "label": "第一页", "sub": "Ctrl+Home", "icon": "⏮", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "home"} } },
+        { "r": 1, "c": 2, "span": 2, "key": { "id": "ppt_last",    "label": "最后一页", "sub": "Ctrl+End", "icon": "⏭", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "end"} } },
+        { "r": 2, "c": 0, "span": 2, "key": { "id": "ppt_black",   "label": "黑屏", "sub": "B", "icon": "⚫", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "b"} } },
+        { "r": 2, "c": 2, "span": 2, "key": { "id": "ppt_white",   "label": "白屏", "sub": "W", "icon": "⚪", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "w"} } }
+      ]
+    }
+  ]
+}

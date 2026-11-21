@@ -1,0 +1,222 @@
+{
+  "version": 2,
+  "id": "terminal",
+  "name": "终端 / Shell",
+  "icon": "⬛",
+  "built_in": true,
+  "match": {
+    "process": [
+      "WindowsTerminal.exe",
+      "powershell.exe",
+      "cmd.exe",
+      "pwsh.exe"
+    ],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "shell",
+      "name": "Shell",
+      "icon": "🐚",
+      "slots": [
+        {
+          "r": 0,
+          "c": 0,
+          "span": 1,
+          "key": {
+            "id": "term_l",
+            "label": "清屏",
+            "sub": "Ctrl+L",
+            "icon": "🧹",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "ctrl"
+              ],
+              "key": "l"
+            }
+          }
+        },
+        {
+          "r": 0,
+          "c": 1,
+          "span": 1,
+          "key": {
+            "id": "term_c",
+            "label": "终止",
+            "sub": "Ctrl+C",
+            "icon": "⛔",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [
+                "ctrl"
+              ],
+              "key": "c"
+            }
+          }
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "span": 1,
+          "key": {
+            "id": "term_d",
+            "label": "EOF",
+            "sub": "Ctrl+D",
+            "icon": "🛑",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [
+                "ctrl"
+              ],
+              "key": "d"
+            }
+          }
+        },
+        {
+          "r": 0,
+          "c": 3,
+          "span": 1,
+          "key": {
+            "id": "term_z",
+            "label": "挂起",
+            "sub": "Ctrl+Z",
+            "icon": "⏸",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [
+                "ctrl"
+              ],
+              "key": "z"
+            }
+          }
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "span": 2,
+          "key": {
+            "id": "term_up",
+            "label": "↑",
+            "sub": "",
+            "icon": "⬆",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "up"
+            }
+          }
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "span": 2,
+          "key": {
+            "id": "term_down",
+            "label": "↓",
+            "sub": "",
+            "icon": "⬇",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "down"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "span": 2,
+          "key": {
+            "id": "term_pgup",
+            "label": "PgUp",
+            "sub": "",
+            "icon": "⤒",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "pageup"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "span": 2,
+          "key": {
+            "id": "term_pgdn",
+            "label": "PgDn",
+            "sub": "",
+            "icon": "⤓",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "pagedown"
+            }
+          }
+        },
+        {
+          "r": 3,
+          "c": 0,
+          "span": 4,
+          "key": {
+            "id": "term_tab",
+            "label": "补全",
+            "sub": "Tab",
+            "icon": "⇥",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "tab"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

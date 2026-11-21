@@ -1,0 +1,24 @@
+{
+  "id": "phonekb-spp",
+  "displayName": "PhoneKB Android SPP transport",
+  "version": "1.0.0",
+  "description": "Native RFCOMM transport for PhoneKB",
+  "engines": {
+    "HBuilderX": "^5.12.0"
+  },
+  "dcloudext": {
+    "type": "uts"
+  },
+  "uni_modules": {
+    "dependencies": [],
+    "encrypt": [],
+    "platforms": {
+      "client": {
+        "App": {
+          "app-android": "y",
+          "app-ios": "n"
+        }
+      }
+    }
+  }
+}

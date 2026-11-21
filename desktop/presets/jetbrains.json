@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "id": "jetbrains",
+  "name": "JetBrains IDE",
+  "icon": "🧠",
+  "built_in": true,
+  "match": {
+    "process": ["idea64.exe", "pycharm64.exe", "webstorm64.exe", "clion64.exe", "goland64.exe", "rider64.exe", "datagrip64.exe"],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "edit",
+      "name": "编辑",
+      "icon": "✂",
+      "slots": [
+        { "r": 0, "c": 0, "span": 1, "key": { "id": "jb_format",     "label": "格式化",  "sub": "Ctrl+Alt+L", "icon": "🎨", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "alt"], "key": "l"} } },
+        { "r": 0, "c": 1, "span": 1, "key": { "id": "jb_complete",  "label": "补全",    "sub": "Ctrl+Space", "icon": "🪄", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "space"} } },
+        { "r": 0, "c": 2, "span": 1, "key": { "id": "jb_refactor",  "label": "重构",    "sub": "Ctrl+Shift+Alt+T", "icon": "🛠", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift", "alt"], "key": "t"} } },
+        { "r": 0, "c": 3, "span": 1, "key": { "id": "jb_comment",   "label": "注释",    "sub": "Ctrl+/", "icon": "💬", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "/"} } },
+        { "r": 1, "c": 0, "span": 1, "key": { "id": "jb_search",    "label": "搜索",    "sub": "Ctrl+Shift+F", "icon": "🔍", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "f"} } },
+        { "r": 1, "c": 1, "span": 1, "key": { "id": "jb_goto",      "label": "跳转",    "sub": "Ctrl+Shift+N", "icon": "📍", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "n"} } },
+        { "r": 1, "c": 2, "span": 1, "key": { "id": "jb_gotorel",   "label": "实现",    "sub": "Ctrl+Alt+B", "icon": "🔗", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "alt"], "key": "b"} } },
+        { "r": 1, "c": 3, "span": 1, "key": { "id": "jb_rename",    "label": "重命名",  "sub": "Shift+F6", "icon": "✏", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["shift"], "key": "f6"} } },
+        { "r": 2, "c": 0, "span": 2, "key": { "id": "jb_terminal",  "label": "终端",    "sub": "Alt+F12", "icon": "💻", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["alt"], "key": "f12"} } },
+        { "r": 2, "c": 2, "span": 2, "key": { "id": "jb_run",       "label": "运行",    "sub": "Shift+F10", "icon": "▶️", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["shift"], "key": "f10"} } }
+      ]
+    },
+    {
+      "id": "run",
+      "name": "运行",
+      "icon": "▶",
+      "slots": [
+        { "r": 0, "c": 0, "span": 2, "key": { "id": "jb_debug",   "label": "调试",    "sub": "Shift+F9", "icon": "🐞", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["shift"], "key": "f9"} } },
+        { "r": 0, "c": 2, "span": 2, "key": { "id": "jb_stop",    "label": "停止",    "sub": "Ctrl+F2", "icon": "⏹", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "f2"} } },
+        { "r": 1, "c": 0, "span": 2, "key": { "id": "jb_stepover","label": "单步",    "sub": "F8", "icon": "👣", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "f8"} } },
+        { "r": 1, "c": 2, "span": 2, "key": { "id": "jb_stepinto","label": "进入",    "sub": "F7", "icon": "🔽", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "f7"} } },
+        { "r": 2, "c": 0, "span": 4, "key": { "id": "jb_rebuild", "label": "重新编译", "sub": "Ctrl+F9", "icon": "🔨", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": true, "shortcut": {"modifiers": ["ctrl"], "key": "f9"} } }
+      ]
+    }
+  ]
+}

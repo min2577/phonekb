@@ -1,0 +1,61 @@
+{
+  "version": 2,
+  "id": "vscode",
+  "name": "VS Code",
+  "icon": "💻",
+  "built_in": true,
+  "match": {
+    "process": ["Code.exe"],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "edit",
+      "name": "编辑",
+      "icon": "✂",
+      "slots": [
+        { "r": 0, "c": 0, "span": 1, "key": { "id": "vscode_format",     "label": "格式化",    "sub": "Shift+Alt+F", "icon": "🎨", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["shift", "alt"], "key": "f"} } },
+        { "r": 0, "c": 1, "span": 1, "key": { "id": "vscode_palette",    "label": "命令面板",  "sub": "Ctrl+Shift+P", "icon": "🧰", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "p"} } },
+        { "r": 0, "c": 2, "span": 1, "key": { "id": "vscode_quick",      "label": "快速打开",  "sub": "Ctrl+P", "icon": "📂", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "p"} } },
+        { "r": 0, "c": 3, "span": 1, "key": { "id": "vscode_comment",    "label": "注释",      "sub": "Ctrl+/", "icon": "💬", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "/"} } },
+        { "r": 1, "c": 0, "span": 1, "key": { "id": "vscode_copy",       "label": "复制",      "sub": "Ctrl+C", "icon": "📋", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "c"} } },
+        { "r": 1, "c": 1, "span": 1, "key": { "id": "vscode_paste",      "label": "粘贴",      "sub": "Ctrl+V", "icon": "📥", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "v"} } },
+        { "r": 1, "c": 2, "span": 1, "key": { "id": "vscode_cut",        "label": "剪切",      "sub": "Ctrl+X", "icon": "✂", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "x"} } },
+        { "r": 1, "c": 3, "span": 1, "key": { "id": "vscode_undo",       "label": "撤销",      "sub": "Ctrl+Z", "icon": "↶", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "z"} } },
+        { "r": 2, "c": 0, "span": 1, "key": { "id": "vscode_save",       "label": "保存",      "sub": "Ctrl+S", "icon": "💾", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "s"} } },
+        { "r": 2, "c": 1, "span": 1, "key": { "id": "vscode_find",       "label": "查找",      "sub": "Ctrl+F", "icon": "🔍", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "f"} } },
+        { "r": 2, "c": 2, "span": 1, "key": { "id": "vscode_replace",    "label": "替换",      "sub": "Ctrl+H", "icon": "🔄", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "h"} } },
+        { "r": 2, "c": 3, "span": 1, "key": { "id": "vscode_selectall",  "label": "全选",      "sub": "Ctrl+A", "icon": "🔲", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "a"} } }
+      ]
+    },
+    {
+      "id": "nav",
+      "name": "导航",
+      "icon": "🧭",
+      "slots": [
+        { "r": 0, "c": 0, "span": 1, "key": { "id": "vscode_gotoline",   "label": "跳行",      "sub": "Ctrl+G", "icon": "📍", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "g"} } },
+        { "r": 0, "c": 1, "span": 1, "key": { "id": "vscode_symbol",     "label": "符号",      "sub": "Ctrl+Shift+O", "icon": "🔣", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "o"} } },
+        { "r": 0, "c": 2, "span": 1, "key": { "id": "vscode_terminal",   "label": "终端",      "sub": "Ctrl+`", "icon": "💻", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "`"} } },
+        { "r": 0, "c": 3, "span": 1, "key": { "id": "vscode_sidebar",    "label": "侧栏",      "sub": "Ctrl+B", "icon": "📑", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "b"} } },
+        { "r": 1, "c": 0, "span": 1, "key": { "id": "vscode_left",       "label": "←",         "sub": "", "icon": "⬅", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "left"} } },
+        { "r": 1, "c": 1, "span": 1, "key": { "id": "vscode_up",         "label": "↑",         "sub": "", "icon": "⬆", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "up"} } },
+        { "r": 1, "c": 2, "span": 1, "key": { "id": "vscode_down",       "label": "↓",         "sub": "", "icon": "⬇", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "down"} } },
+        { "r": 1, "c": 3, "span": 1, "key": { "id": "vscode_right",      "label": "→",         "sub": "", "icon": "➡", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "right"} } },
+        { "r": 2, "c": 0, "span": 2, "key": { "id": "vscode_back",       "label": "后退",      "sub": "Alt+←", "icon": "⏪", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["alt"], "key": "left"} } },
+        { "r": 2, "c": 2, "span": 2, "key": { "id": "vscode_forward",    "label": "前进",      "sub": "Alt+→", "icon": "⏩", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["alt"], "key": "right"} } }
+      ]
+    },
+    {
+      "id": "run",
+      "name": "运行",
+      "icon": "▶",
+      "slots": [
+        { "r": 0, "c": 0, "span": 2, "key": { "id": "vscode_run",        "label": "运行",      "sub": "F5", "icon": "▶️", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "f5"} } },
+        { "r": 0, "c": 2, "span": 2, "key": { "id": "vscode_debug",      "label": "调试",      "sub": "F5", "icon": "🐞", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "f5"} } },
+        { "r": 1, "c": 0, "span": 2, "key": { "id": "vscode_stop",       "label": "停止",      "sub": "Shift+F5", "icon": "⏹", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["shift"], "key": "f5"} } },
+        { "r": 1, "c": 2, "span": 2, "key": { "id": "vscode_restart",    "label": "重启",      "sub": "Ctrl+Shift+F5", "icon": "🔄", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "f5"} } },
+        { "r": 2, "c": 0, "span": 4, "key": { "id": "vscode_clear_term", "label": "清终端",    "sub": "macro", "icon": "🧹", "type": "macro", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "macro": {"steps": [{"type": "key", "modifiers": ["ctrl"], "key": "k"}, {"type": "wait_ms", "value": 50}] } } }
+      ]
+    }
+  ]
+}

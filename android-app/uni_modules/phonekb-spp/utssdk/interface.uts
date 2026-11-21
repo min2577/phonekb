@@ -1,0 +1,28 @@
+export type SppEvent = {
+  type: string,
+  message?: string,
+  payload?: string
+}
+
+export type SppEventCallback = (event: SppEvent) => void
+
+export type ConnectOptions = {
+  address: string,
+  callback: SppEventCallback
+}
+
+export type Connect = (options: ConnectOptions) => void
+export type Send = (payload: string) => boolean
+export type HidStartOptions = {
+  address: string,
+  callback: SppEventCallback
+}
+export type HidStart = (options: HidStartOptions) => void
+export type HidMouseMove = (dx: number, dy: number) => boolean
+export type HidMouseButton = (button: string, down: boolean) => boolean
+export type HidMouseWheel = (delta: number) => boolean
+export type HidKeyboardKey = (key: string, down: boolean) => boolean
+export type HidKeyboardShortcut = (modifiers: Array<string>, key: string, down: boolean) => boolean
+export type HidConsumerKey = (key: string, down: boolean) => boolean
+export type HidClose = () => void
+export type Close = () => void

@@ -1,0 +1,347 @@
+{
+  "version": 2,
+  "id": "vim",
+  "name": "Vim",
+  "icon": "🅥",
+  "built_in": true,
+  "match": {
+    "process": [
+      "vim.exe",
+      "nvim.exe",
+      "gvim.exe"
+    ],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "motion",
+      "name": "移动",
+      "icon": "🧭",
+      "slots": [
+        {
+          "r": 0,
+          "c": 0,
+          "span": 1,
+          "key": {
+            "id": "vim_w",
+            "label": "下一词",
+            "sub": "w",
+            "icon": "➡",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "w"
+            }
+          }
+        },
+        {
+          "r": 0,
+          "c": 1,
+          "span": 1,
+          "key": {
+            "id": "vim_b",
+            "label": "上一词",
+            "sub": "b",
+            "icon": "⬅",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "b"
+            }
+          }
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "span": 1,
+          "key": {
+            "id": "vim_0",
+            "label": "行首",
+            "sub": "0",
+            "icon": "⇤",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "0"
+            }
+          }
+        },
+        {
+          "r": 0,
+          "c": 3,
+          "span": 1,
+          "key": {
+            "id": "vim_dlr",
+            "label": "行尾",
+            "sub": "$",
+            "icon": "⇥",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "shift"
+              ],
+              "key": "4"
+            }
+          }
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "span": 1,
+          "key": {
+            "id": "vim_gg",
+            "label": "文件首",
+            "sub": "gg",
+            "icon": "⤴",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "g"
+            }
+          }
+        },
+        {
+          "r": 1,
+          "c": 1,
+          "span": 1,
+          "key": {
+            "id": "vim_G",
+            "label": "文件尾",
+            "sub": "G",
+            "icon": "⤵",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "shift"
+              ],
+              "key": "g"
+            }
+          }
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "span": 2,
+          "key": {
+            "id": "vim_u",
+            "label": "撤销",
+            "sub": "u",
+            "icon": "↶",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "u"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "span": 1,
+          "key": {
+            "id": "vim_dd",
+            "label": "删行",
+            "sub": "dd",
+            "icon": "🗑",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "d"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "span": 1,
+          "key": {
+            "id": "vim_yy",
+            "label": "复制行",
+            "sub": "yy",
+            "icon": "⎘",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "y"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "span": 1,
+          "key": {
+            "id": "vim_p",
+            "label": "粘贴",
+            "sub": "p",
+            "icon": "⎗",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "p"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 3,
+          "span": 1,
+          "key": {
+            "id": "vim_i",
+            "label": "插入",
+            "sub": "i",
+            "icon": "✎",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "i"
+            }
+          }
+        },
+        {
+          "r": 3,
+          "c": 0,
+          "span": 1,
+          "key": {
+            "id": "vim_slash",
+            "label": "搜索",
+            "sub": "/",
+            "icon": "🔍",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [
+                "shift"
+              ],
+              "key": "/"
+            }
+          }
+        },
+        {
+          "r": 3,
+          "c": 1,
+          "span": 1,
+          "key": {
+            "id": "vim_n",
+            "label": "下一个",
+            "sub": "n",
+            "icon": "⬇",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "n"
+            }
+          }
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "span": 1,
+          "key": {
+            "id": "vim_N",
+            "label": "上一个",
+            "sub": "N",
+            "icon": "⬆",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "shift"
+              ],
+              "key": "n"
+            }
+          }
+        },
+        {
+          "r": 3,
+          "c": 3,
+          "span": 1,
+          "key": {
+            "id": "vim_esc",
+            "label": "退出",
+            "sub": "Esc",
+            "icon": "⎋",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [],
+              "key": "escape"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

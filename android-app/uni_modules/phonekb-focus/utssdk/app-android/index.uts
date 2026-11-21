@@ -1,0 +1,290 @@
+import AccessibilityEvent from 'android.view.accessibility.AccessibilityEvent'
+import AccessibilityService from 'android.accessibilityservice.AccessibilityService'
+import Build from 'android.os.Build'
+import Context from 'android.content.Context'
+import SharedPreferences from 'android.content.SharedPreferences'
+import Intent from 'android.content.Intent'
+import Settings from 'android.provider.Settings'
+import Uri from 'android.net.Uri'
+import Service from 'android.app.Service'
+import Notification from 'android.app.Notification'
+import NotificationChannel from 'android.app.NotificationChannel'
+import NotificationManager from 'android.app.NotificationManager'
+import PendingIntent from 'android.app.PendingIntent'
+import IBinder from 'android.os.IBinder'
+import Handler from 'android.os.Handler'
+import Looper from 'android.os.Looper'
+import View from 'android.view.View'
+import WindowManager from 'android.view.WindowManager'
+import PixelFormat from 'android.graphics.PixelFormat'
+import Color from 'android.graphics.Color'
+import JavaSystem from 'java.lang.System'
+import Runnable from 'java.lang.Runnable'
+import { FocusState, StartFocus, StopFocus, GetFocusState, IsAccessibilityEnabled, OpenAccessibilitySettings, IsOverlayEnabled, OpenOverlaySettings, OpenAppDetails } from '../interface.uts'
+
+const PREFS = 'phonekb_focus_lock'
+const KEY_ACTIVE = 'active'
+const KEY_END_AT = 'end_at'
+const KEY_WHITELIST = 'whitelist'
+const KEY_BLOCK_OVERLAY = 'block_overlay'
+const SEP = '\u001f'
+const CHANNEL_ID = 'phonekb_focus'
+const NOTIFICATION_ID = 4721
+
+function preferences(context: Context): SharedPreferences {
+  return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+}
+
+function nowMs(): number { return JavaSystem.currentTimeMillis() }
+
+function ownPackage(context: Context): string { return context.getPackageName() }
+
+function readWhitelist(context: Context): Array<string> {
+  const raw = preferences(context).getString(KEY_WHITELIST, '') ?? ''
+  if (raw.length === 0) return []
+  return raw.split(SEP).filter(function (item: string): boolean { return item.length > 0 })
+}
+
+function isAllowed(context: Context, packageName: string): boolean {
+  if (packageName === ownPackage(context)) return true
+  return readWhitelist(context).indexOf(packageName) >= 0
+}
+
+function canDrawOverlays(context: Context): boolean {
+  return Build.VERSION.SDK_INT < 23 || Settings.canDrawOverlays(context)
+}
+
+function launchOwnApp(service: AccessibilityService): void {
+  try {
+    const launch = service.getPackageManager().getLaunchIntentForPackage(ownPackage(service))
+    if (launch != null) {
+      launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+      service.startActivity(launch)
+    }
+  } catch (_: Throwable) {}
+}
+
+export class FocusAccessibilityService extends AccessibilityService {
+  constructor() { super() }
+  override onAccessibilityEvent(event: AccessibilityEvent): void {
+    const context: Context = this
+    const active = preferences(context).getBoolean(KEY_ACTIVE, false)
+    const endAt = preferences(context).getLong(KEY_END_AT, 0)
+    if (!active || endAt <= nowMs()) {
+      preferences(context).edit().putBoolean(KEY_BLOCK_OVERLAY, false).apply()
+      return
+    }
+    const packageName = event.getPackageName()?.toString() ?? ''
+    if (packageName.length > 0) {
+      const allowed = isAllowed(context, packageName)
+      preferences(context).edit().putBoolean(KEY_BLOCK_OVERLAY, !allowed).apply()
+      if (!allowed) launchOwnApp(this)
+    }
+  }
+
+  override onInterrupt(): void {}
+}
+
+class FocusTickRunnable extends Runnable {
+  private service: FocusForegroundService
+  constructor(service: FocusForegroundService) {
+    super()
+    this.service = service
+  }
+  override run(): void { this.service.tick() }
+}
+
+class FocusForegroundService extends Service {
+  private handler: Handler = Handler(Looper.getMainLooper())
+  private tickRunnable: FocusTickRunnable | null = null
+  private overlayView: View | null = null
+  private windowManager: WindowManager | null = null
+
+  constructor() { super() }
+
+  override onCreate(): void {
+    super.onCreate()
+    if (Build.VERSION.SDK_INT >= 26) {
+      const manager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+      manager.createNotificationChannel(NotificationChannel(CHANNEL_ID, '专注模式', NotificationManager.IMPORTANCE_LOW))
+    }
+    this.startForeground(NOTIFICATION_ID, buildNotification(this, '专注模式已启动'))
+    this.tickRunnable = FocusTickRunnable(this)
+    this.handler.post(this.tickRunnable!!)
+  }
+
+  tick(): void {
+    const active = preferences(this).getBoolean(KEY_ACTIVE, false)
+    const endAt = preferences(this).getLong(KEY_END_AT, 0)
+    if (!active || endAt <= nowMs()) {
+      preferences(this).edit().putBoolean(KEY_ACTIVE, false).putBoolean(KEY_BLOCK_OVERLAY, false).apply()
+      this.hideBlockOverlay()
+      this.stopSelf()
+      return
+    }
+    this.syncBlockOverlay()
+    const remain = Math.max(0, Math.floor((endAt - nowMs()) / 1000))
+    const manager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    manager.notify(NOTIFICATION_ID, buildNotification(this, '剩余 ' + formatRemaining(remain)))
+    this.handler.postDelayed(this.tickRunnable!!, 1000)
+  }
+
+  override onStartCommand(intent: Intent | null, flags: Int, startId: Int): Int { return Service.START_STICKY }
+
+  override onTaskRemoved(rootIntent: Intent | null): void {
+    const active = preferences(this).getBoolean(KEY_ACTIVE, false)
+    const endAt = preferences(this).getLong(KEY_END_AT, 0)
+    if (active && endAt > nowMs()) {
+      preferences(this).edit().putBoolean(KEY_BLOCK_OVERLAY, true).apply()
+      this.showBlockOverlay()
+      try {
+        const launch = this.getPackageManager().getLaunchIntentForPackage(ownPackage(this))
+        if (launch != null) {
+          launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+          this.startActivity(launch)
+        }
+      } catch (_: Throwable) {}
+    }
+    super.onTaskRemoved(rootIntent)
+  }
+
+  override onDestroy(): void {
+    if (this.tickRunnable != null) this.handler.removeCallbacks(this.tickRunnable!!)
+    this.hideBlockOverlay()
+    super.onDestroy()
+  }
+
+  override onBind(intent: Intent): IBinder | null { return null }
+
+  private syncBlockOverlay(): void {
+    if (preferences(this).getBoolean(KEY_BLOCK_OVERLAY, false)) this.showBlockOverlay()
+    else this.hideBlockOverlay()
+  }
+
+  private showBlockOverlay(): void {
+    if (this.overlayView != null || !canDrawOverlays(this)) return
+    try {
+      const manager = this.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+      const view = new View(this)
+      view.setBackgroundColor(Color.rgb(7, 20, 38))
+      const type = Build.VERSION.SDK_INT >= 26
+        ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+        : WindowManager.LayoutParams.TYPE_PHONE
+      const flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+      const params = new WindowManager.LayoutParams(
+        WindowManager.LayoutParams.MATCH_PARENT,
+        WindowManager.LayoutParams.MATCH_PARENT,
+        type,
+        flags,
+        PixelFormat.OPAQUE
+      )
+      manager.addView(view, params)
+      this.windowManager = manager
+      this.overlayView = view
+    } catch (_: Throwable) {
+      this.overlayView = null
+      this.windowManager = null
+    }
+  }
+
+  private hideBlockOverlay(): void {
+    if (this.overlayView == null || this.windowManager == null) return
+    try { this.windowManager!!.removeView(this.overlayView!!) } catch (_: Throwable) {}
+    this.overlayView = null
+    this.windowManager = null
+  }
+}
+
+function formatRemaining(sec: number): string {
+  const minutes = Math.floor(sec / 60)
+  const seconds = sec % 60
+  return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
+}
+
+function buildNotification(context: Context, text: string): Notification {
+  const launch = context.getPackageManager().getLaunchIntentForPackage(ownPackage(context))
+  let pending: PendingIntent | null = null
+  if (launch != null) {
+    launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    pending = PendingIntent.getActivity(context, NOTIFICATION_ID, launch, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE)
+  }
+  const builder = Notification.Builder(context, CHANNEL_ID)
+  builder.setContentTitle('PhoneKB 专注锁定').setContentText(text).setSmallIcon(android.R.drawable.ic_lock_lock).setOngoing(true)
+  if (pending != null) builder.setContentIntent(pending)
+  return builder.build()
+}
+
+export function isAccessibilityEnabled(): boolean {
+  try {
+    const context = UTSAndroid.getAppContext()
+    const enabled = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?? ''
+    return enabled.contains('phonekbFocus.FocusAccessibilityService')
+  } catch (_: Throwable) { return false }
+}
+
+export function openAccessibilitySettings(): boolean {
+  try {
+    const context = UTSAndroid.getAppContext()
+    const intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(intent)
+    return true
+  } catch (_: Throwable) { return false }
+}
+
+export function isOverlayEnabled(): boolean {
+  try { return canDrawOverlays(UTSAndroid.getAppContext()) } catch (_: Throwable) { return false }
+}
+
+export function openOverlaySettings(): boolean {
+  try {
+    const context = UTSAndroid.getAppContext()
+    const intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+    intent.setData(Uri.parse('package:' + context.getPackageName()))
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(intent)
+    return true
+  } catch (_: Throwable) { return false }
+}
+
+export function openAppDetails(): boolean {
+  try {
+    const context = UTSAndroid.getAppContext()
+    const intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+    intent.setData(Uri.parse('package:' + context.getPackageName()))
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(intent)
+    return true
+  } catch (_: Throwable) { return false }
+}
+
+export function startFocus(durationSec: number, whitelist: Array<string>): boolean {
+  try {
+    const context = UTSAndroid.getAppContext()
+    const endAt = nowMs() + Math.max(60, durationSec) * 1000
+    preferences(context).edit().putBoolean(KEY_ACTIVE, true).putLong(KEY_END_AT, endAt).putString(KEY_WHITELIST, whitelist.join(SEP)).putBoolean(KEY_BLOCK_OVERLAY, false).apply()
+    const intent = new Intent(context, (new FocusForegroundService()).javaClass)
+    if (Build.VERSION.SDK_INT >= 26) {
+      context.startForegroundService(intent)
+    } else {
+      context.startService(intent)
+    }
+    return true
+  } catch (_: Throwable) { return false }
+}
+
+export function stopFocus(): boolean {
+  try {
+    const context = UTSAndroid.getAppContext()
+    preferences(context).edit().putBoolean(KEY_ACTIVE, false).putBoolean(KEY_BLOCK_OVERLAY, false).apply()
+    context.stopService(new Intent(context, (new FocusForegroundService()).javaClass))
+    return true
+  } catch (_: Throwable) { return false }
+}
+
+export function getFocusState(): FocusState {
+  try {
+    const context = UTSAndroid.getAppContext()
+    return { active: preferences(context).getBoolean(KEY_ACTIVE, false), endAt: preferences(context).getLong(KEY_END_AT, 0), whitelist: readWhitelist(context) }
+  } catch (_: Throwable) { return { active: false, endAt: 0, whitelist: [] } }
+}

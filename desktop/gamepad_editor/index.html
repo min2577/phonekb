@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    if (new URLSearchParams(location.search).get('mobile') === '1') {
+      document.querySelector('meta[name="viewport"]').content = 'width=1440, initial-scale=1, user-scalable=yes';
+    }
+  </script>
+  <title>PhoneKB Switch 手柄布局编辑器 - 独立原型</title>
+  <style>
+    :root {
+      --bg: #091116;
+      --bar: #0d171d;
+      --panel: #111d24;
+      --panel-raised: #172832;
+      --line: #29424f;
+      --line-strong: #3d6170;
+      --text: #e8f1f3;
+      --muted: #8ba2ac;
+      --blue: #367efa;
+      --blue-bright: #55a7ff;
+      --blue-deep: #123a73;
+      --cyan: #48ded3;
+      --warm: #e8bf6a;
+      --danger: #ef838a;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; }
+    body { margin: 0; overflow: hidden; color: var(--text); background: var(--bg); font-family: "MiSans", "Microsoft YaHei", "Segoe UI", sans-serif; letter-spacing: 0; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .42; }
+
+    .app { width: 100vw; min-width: 1200px; height: 100vh; min-height: 740px; overflow: hidden; background: var(--bg); }
+    .titlebar { height: 50px; display: flex; align-items: center; gap: 15px; padding: 0 18px; border-bottom: 1px solid #233842; background: #0b151b; }
+    .brand-mark { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid var(--cyan); border-radius: 7px; color: var(--cyan); font-size: 15px; font-weight: 800; }
+    .brand { color: #f4f9fa; font-size: 15px; font-weight: 800; }
+    .crumb { color: #7e98a4; font-size: 12px; }
+    .prototype-badge { padding: 4px 8px; border: 1px solid #735f38; border-radius: 4px; color: #efc778; background: #2e281b; font-size: 11px; font-weight: 700; }
+    .window-tools { margin-left: auto; color: #7f97a2; font-size: 14px; letter-spacing: 5px; }
+
+    .shell { height: calc(100% - 50px); display: grid; grid-template-columns: 250px minmax(600px, 1fr) 366px; }
+    .layouts { position: relative; padding: 17px 13px; border-right: 1px solid #253c47; background: #101b22; }
+    .editor { min-width: 0; padding: 14px 18px 16px; background: #0d171d; }
+    .inspector { overflow-y: auto; padding: 14px 16px 20px; border-left: 1px solid #253c47; background: #101b22; }
+    .inspector::-webkit-scrollbar { width: 8px; }
+    .inspector::-webkit-scrollbar-thumb { border-radius: 8px; background: #2a4550; }
+
+    .aside-head { display: flex; align-items: center; justify-content: space-between; height: 36px; margin: 0 8px 13px; color: #b9cbd1; font-size: 13px; font-weight: 800; }
+    .icon-button { width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid #3f616c; border-radius: 6px; color: var(--cyan); background: transparent; font-size: 20px; line-height: 1; }
+    .icon-button:hover { background: #173036; }
+    .section-label { display: block; margin: 17px 8px 8px; color: #718b97; font-size: 11px; font-weight: 800; }
+    .layout-item { position: relative; width: 100%; min-height: 60px; margin-bottom: 4px; padding: 10px 29px 10px 42px; border: 1px solid transparent; border-radius: 7px; color: #c7d6da; background: transparent; text-align: left; }
+    .layout-item:hover { background: #15262f; }
+    .layout-item.active { border-color: #336b6e; background: #143238; color: #fff; }
+    .layout-icon { position: absolute; left: 12px; top: 15px; color: var(--cyan); font-size: 17px; }
+    .layout-item b { display: block; font-size: 13px; }
+    .layout-item small { display: block; margin-top: 5px; color: #8299a4; font-size: 11px; }
+    .layout-more { position: absolute; right: 10px; top: 18px; color: #8299a4; letter-spacing: 1px; }
+    .prototype-note { position: absolute; right: 13px; bottom: 19px; left: 13px; padding: 14px 12px 0; border-top: 1px solid #29424d; color: #92a8b1; font-size: 12px; line-height: 1.65; }
+    .prototype-note b { color: var(--cyan); }
+
+    .toolbar { height: 48px; display: flex; align-items: center; justify-content: space-between; }
+    .title-group, .toolbar-actions { display: flex; align-items: center; gap: 8px; }
+    .layout-title { color: #eef5f6; font-size: 16px; font-weight: 800; }
+    .device-pill { padding: 5px 8px; border: 1px solid #385463; border-radius: 5px; color: #9ab0ba; font-size: 11px; }
+    .button { height: 32px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 11px; border: 1px solid #3a5562; border-radius: 6px; color: #bdcdd2; background: #15242d; font-size: 12px; font-weight: 700; }
+    .button:hover { border-color: #5a7885; background: #1c303a; }
+    .button.primary { border-color: var(--cyan); color: #082b2b; background: var(--cyan); }
+    .button.primary:hover { background: #72e8e1; }
+    .button.ghost { color: #9cb2ba; background: transparent; }
+
+    .stage { position: relative; height: calc(100% - 106px); min-height: 496px; overflow: hidden; border: 1px solid #294550; background-color: #0b151b; background-image: linear-gradient(rgba(34, 62, 73, .32) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 62, 73, .32) 1px, transparent 1px); background-size: 32px 32px; }
+    .phone-frame { position: relative; width: min(90%, 1040px); aspect-ratio: 20 / 9; overflow: hidden; border: 8px solid #1d2e38; border-radius: 32px; background: #244c62; box-shadow: 0 18px 45px rgba(0, 0, 0, .44); }
+    .stage { display: grid; place-items: center; }
+    .game-sky { position: absolute; inset: 0 0 50% 0; background: linear-gradient(#246381, #275b72); }
+    .game-haze { position: absolute; top: 17%; left: 9%; width: 27%; height: 7%; border-radius: 50%; background: rgba(166, 207, 218, .45); }
+    .game-haze.two { top: 29%; left: auto; right: 12%; width: 18%; }
+    .mountain { position: absolute; top: 31%; border-style: solid; border-width: 0 17vw 14vw; border-color: transparent transparent #285569; opacity: .9; }
+    .mountain.one { left: 3%; }.mountain.two { left: 35%; border-bottom-color: #214b60; border-width: 0 18vw 15vw; }.mountain.three { right: 1%; border-bottom-color: #2d5b6d; }
+    .game-field { position: absolute; inset: 50% 0 0; background: #336b52; }
+    .game-road { position: absolute; top: 0; bottom: 0; left: 44%; width: 16%; background: #b7ae77; transform: skewX(-18deg); }
+    .game-tree { position: absolute; bottom: 10%; width: 3%; height: 18%; background: #5e472d; }
+    .game-tree::before { content: ""; position: absolute; top: -43%; left: -76%; width: 255%; height: 82%; border-radius: 50%; background: #1d5942; }
+    .game-tree.one { left: 12%; }.game-tree.two { right: 13%; bottom: 17%; }.game-tree.three { left: 37%; bottom: 4%; }
+    .canvas-hint { position: absolute; z-index: 1; top: 17px; left: 50%; transform: translateX(-50%); padding: 6px 10px; border-radius: 4px; color: #dbe9ec; background: rgba(5, 16, 23, .7); font-size: 11px; }
+
+    .control { position: absolute; z-index: 2; user-select: none; touch-action: none; cursor: grab; transform-origin: center; }
+    .control.dragging { cursor: grabbing; z-index: 4; }
+    .control.locked { cursor: default; }
+    .control.selected .key-surface, .control.selected .stick-surface, .control.selected .pad-surface, .control.selected .mouse-surface { box-shadow: 0 0 0 2px rgba(103, 224, 255, .96), 0 0 0 6px rgba(53, 137, 255, .28), 0 8px 20px rgba(2, 12, 29, .55); }
+    .control-caption { position: absolute; top: calc(100% + 7px); left: 50%; transform: translateX(-50%); padding: 2px 5px; color: #e7f3f7; background: rgba(6, 17, 24, .54); font-size: 10px; font-weight: 700; white-space: nowrap; text-shadow: 0 1px 1px #071217; }
+    .control.selected::after { content: ""; position: absolute; top: -9px; right: -9px; width: 9px; height: 9px; border: 2px solid #fff; border-radius: 50%; background: var(--cyan); }
+    .key-surface { position: relative; min-width: 48px; height: 48px; display: grid; place-items: center; padding: 0 10px; border: 1px solid #5ba4ff; border-radius: 50%; color: #eff9ff; background: rgba(21, 82, 176, .78); box-shadow: 0 5px 12px rgba(2, 17, 48, .36), inset 0 0 0 1px rgba(146, 204, 255, .12); font-size: 15px; font-weight: 800; text-shadow: 0 1px 2px #061932; }
+    .key-surface.wide { min-width: 90px; border-radius: 7px; }
+    .key-surface .function-tag { position: absolute; top: -7px; right: -5px; min-width: 17px; height: 17px; display: grid; place-items: center; padding: 0 3px; border: 1px solid #8bc4ff; border-radius: 4px; color: #dff4ff; background: #194d91; font-size: 9px; font-weight: 800; }
+    .stick-surface { position: relative; width: 126px; height: 126px; border: 2px solid #5aa6ff; border-radius: 50%; background: rgba(16, 66, 139, .48); box-shadow: inset 0 0 0 23px rgba(40, 124, 232, .16), 0 7px 17px rgba(2, 16, 48, .32); }
+    .stick-surface::before { content: ""; position: absolute; top: 38px; left: 38px; width: 46px; height: 46px; border: 1px solid rgba(153, 211, 255, .55); border-radius: 50%; background: rgba(70, 161, 255, .22); }
+    .axis-key { position: absolute; z-index: 1; min-width: 27px; height: 27px; display: grid; place-items: center; padding: 0 4px; border: 1px solid rgba(132, 195, 255, .85); border-radius: 4px; color: #f4fbff; background: rgba(26, 85, 170, .9); font-size: 11px; font-weight: 800; }
+    .axis-key.up { top: 8px; left: 48px; }.axis-key.down { bottom: 8px; left: 48px; }.axis-key.left { top: 49px; left: 8px; }.axis-key.right { top: 49px; right: 8px; }
+    .axis-center { position: absolute; top: 57px; left: 57px; width: 11px; height: 11px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 0 3px rgba(72, 222, 211, .14); }
+    .camera-stick { display: grid; place-items: center; }.camera-stick::before { top: 34px; left: 34px; width: 54px; height: 54px; background: rgba(55, 146, 255, .12); }.view-reticle { position: relative; z-index: 1; width: 39px; height: 39px; border: 2px solid #75bbff; border-radius: 50%; box-shadow: 0 0 0 5px rgba(41, 135, 255, .14); }.view-reticle::before, .view-reticle::after { content: ""; position: absolute; top: 50%; left: 50%; background: #88d3ff; transform: translate(-50%, -50%); }.view-reticle::before { width: 56px; height: 1px; }.view-reticle::after { width: 1px; height: 56px; }.view-label { position: absolute; z-index: 2; bottom: 12px; color: #cfedff; background: rgba(10, 51, 106, .74); font-size: 10px; font-weight: 800; }
+    .face-cluster { position: relative; width: 130px; height: 130px; }
+    .face-cluster .face-key { position: absolute; }
+    .face-key.y { top: 0; left: 41px; }.face-key.x { top: 41px; left: 0; }.face-key.a { top: 41px; right: 0; }.face-key.b { bottom: 0; left: 41px; }
+    .face-key .key-surface { min-width: 48px; }
+    .pad-surface { position: relative; width: 91px; height: 91px; }
+    .pad-key { position: absolute; width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid #62aafc; color: #f0f9ff; background: rgba(22, 79, 165, .82); font-size: 12px; font-weight: 800; }
+    .pad-key.up { top: 0; left: 30px; border-radius: 5px 5px 0 0; }.pad-key.down { bottom: 0; left: 30px; border-radius: 0 0 5px 5px; }.pad-key.left { top: 30px; left: 0; border-radius: 5px 0 0 5px; }.pad-key.right { top: 30px; right: 0; border-radius: 0 5px 5px 0; }
+    .mouse-surface { width: 125px; height: 82px; display: grid; place-items: center; border: 1px dashed #67b5ff; border-radius: 9px; color: #d7efff; background: rgba(18, 74, 154, .31); font-size: 11px; font-weight: 800; }
+    .mouse-surface::before { content: "⌁"; margin-right: 4px; color: #80c4ff; font-size: 18px; }
+
+    /* UI components and keyboard tokens are two independent canvas layers. */
+    .control { z-index: 4; }
+    .control.selected .ui-surface { box-shadow: 0 0 0 2px rgba(103, 224, 255, .98), 0 0 0 6px rgba(53, 137, 255, .3), 0 9px 23px rgba(2, 12, 29, .56); }
+    .ui-surface { position: relative; color: #d8efff; border: 1px solid rgba(118, 185, 255, .85); background: rgba(16, 76, 161, .3); box-shadow: inset 0 0 0 1px rgba(173, 217, 255, .1), 0 6px 16px rgba(2, 17, 48, .28); }
+    .ui-stick { width: 132px; height: 132px; display: grid; place-items: center; border-radius: 50%; background: rgba(18, 83, 172, .2); }
+    .ui-stick::before { content: ""; width: 48px; height: 48px; border: 1px solid rgba(157, 212, 255, .7); border-radius: 50%; background: rgba(71, 155, 255, .13); box-shadow: 0 0 0 21px rgba(48, 125, 228, .1); }
+    .ui-stick .ui-label { position: absolute; bottom: 11px; padding: 2px 5px; color: #d8f2ff; background: rgba(8, 43, 91, .62); font-size: 10px; font-weight: 800; }
+    .ui-face { position: relative; width: 132px; height: 132px; border: 0; background: transparent; box-shadow: none; }
+    .ui-face span { position: absolute; width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid rgba(117, 184, 255, .8); border-radius: 50%; color: rgba(230, 246, 255, .92); background: rgba(16, 79, 171, .25); font-size: 11px; font-weight: 800; }
+    .ui-face .ui-y { top: 0; left: 42px; }.ui-face .ui-x { top: 42px; left: 0; }.ui-face .ui-a { top: 42px; right: 0; }.ui-face .ui-b { bottom: 0; left: 42px; }
+    .ui-pad { position: relative; width: 92px; height: 92px; border: 0; background: transparent; box-shadow: none; }
+    .ui-pad span { position: absolute; width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(117, 184, 255, .75); color: #dff2ff; background: rgba(15, 71, 150, .28); font-size: 12px; }
+    .ui-pad .up { top: 0; left: 30px; border-radius: 5px 5px 0 0; }.ui-pad .down { bottom: 0; left: 30px; border-radius: 0 0 5px 5px; }.ui-pad .left { top: 30px; left: 0; border-radius: 5px 0 0 5px; }.ui-pad .right { top: 30px; right: 0; border-radius: 0 5px 5px 0; }
+    .ui-button { min-width: 72px; height: 42px; display: grid; place-items: center; padding: 0 12px; border-radius: 7px; color: #def2ff; font-size: 12px; font-weight: 800; }.ui-button.round { min-width: 52px; width: 52px; height: 52px; padding: 0; border-radius: 50%; }.ui-button.wide { min-width: 106px; }
+    .ui-mouse { width: 128px; height: 85px; display: grid; place-items: center; border-style: dashed; border-radius: 10px; color: #cdeeff; font-size: 11px; font-weight: 800; }.ui-mouse::before { content: "⌁"; margin-right: 4px; color: #80c4ff; font-size: 18px; }
+    .ui-reticle { width: 126px; height: 126px; display: grid; place-items: center; border-radius: 50%; background: rgba(15, 72, 157, .16); }.ui-reticle::before { content: ""; width: 40px; height: 40px; border: 2px solid #75bbff; border-radius: 50%; box-shadow: 0 0 0 5px rgba(41, 135, 255, .12); }.ui-reticle::after { content: "视角"; position: absolute; bottom: 12px; padding: 2px 5px; color: #d8f2ff; background: rgba(8, 43, 91, .62); font-size: 10px; font-weight: 800; }
+    .letter-object { position: absolute; z-index: 3; user-select: none; touch-action: none; cursor: grab; transform-origin: center; }.letter-object.dragging { z-index: 8; cursor: grabbing; }.letter-object.locked { cursor: default; }
+    .letter-token { min-width: 46px; height: 46px; display: grid; place-items: center; padding: 0 9px; border: 1px solid #71b5ff; border-radius: 50%; color: #f0f9ff; background: rgba(18, 78, 171, .9); box-shadow: 0 5px 13px rgba(2, 17, 48, .38), inset 0 0 0 1px rgba(177, 221, 255, .12); font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px #061932; }.letter-token.wide { min-width: 74px; border-radius: 6px; font-size: 12px; }
+    .letter-object.selected .letter-token { box-shadow: 0 0 0 2px #80e5ff, 0 0 0 6px rgba(53, 137, 255, .32), 0 8px 21px rgba(2, 12, 29, .58); }.letter-object.selected::after { content: ""; position: absolute; top: -9px; right: -9px; width: 9px; height: 9px; border: 2px solid #fff; border-radius: 50%; background: var(--cyan); }.letter-object.binding-target .letter-token { border-color: var(--warm); box-shadow: 0 0 0 2px rgba(232, 191, 106, .75), 0 0 18px rgba(232, 191, 106, .25); }
+    #canvas[data-edit-mode="ui"] .letter-object { pointer-events: none; opacity: .62 !important; } #canvas[data-edit-mode="key"] .control { pointer-events: none; opacity: .38 !important; } #canvas[data-edit-mode="key"] .letter-object { z-index: 6; }
+
+    .statusbar { height: 42px; display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 0 13px; border: 1px solid #294550; border-radius: 6px; color: #91a8b1; background: #111f27; font-size: 11px; }
+    .statusbar b { color: var(--cyan); }.toast.good { color: var(--cyan); }
+
+    .inspector-tabs { display: grid; grid-template-columns: 1fr 1fr auto; gap: 7px; height: 39px; margin-bottom: 8px; }
+    .tab { display: grid; place-items: center; border: 1px solid #334f5c; border-radius: 6px; color: #91aab5; background: #14242c; font-size: 12px; font-weight: 800; }.tab.active { border-color: #376f71; color: var(--cyan); background: #123238; }
+    .tab-action { min-width: 112px; }
+    .layer-note { min-height: 30px; margin-bottom: 8px; color: #89a0aa; font-size: 11px; line-height: 1.45; }.layer-note b { color: var(--cyan); }
+    .settings-section { padding: 13px 0; border-bottom: 1px solid #29414c; }
+    .settings-section h2 { margin: 0 0 11px; color: #eaf4f5; font-size: 13px; }
+    .settings-section h2 span { margin-left: 7px; color: #78929d; font-size: 10px; font-weight: 500; }
+    .field-label { display: block; margin: 9px 0 6px; color: #8da4ae; font-size: 11px; }
+    .field { width: 100%; height: 35px; padding: 0 9px; border: 1px solid #3a5662; border-radius: 5px; outline: none; color: #deebee; background: #172833; font-size: 12px; }
+    .field:focus { border-color: var(--blue-bright); }
+    .mode-badge { display: flex; align-items: center; gap: 8px; min-height: 35px; padding: 0 9px; border: 1px solid #344f5b; border-radius: 5px; color: #b4c8ce; background: #14242c; font-size: 12px; }
+    .mode-badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-bright); box-shadow: 0 0 0 3px rgba(85, 167, 255, .13); }
+    .bind-help { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; color: #849da7; font-size: 11px; }
+    .capture-state { color: var(--cyan); }
+    .binding-grid { display: grid; gap: 7px; }
+    .binding-grid.two { grid-template-columns: repeat(2, 1fr); }.binding-grid.four { grid-template-columns: repeat(2, 1fr); }
+    .binding-card { min-height: 48px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 7px; padding: 7px 8px; border: 1px solid #365465; border-radius: 6px; color: #bed0d6; background: #142630; text-align: left; }
+    .binding-card:hover { border-color: #6399c8; background: #173142; }.binding-card.active { border-color: var(--blue-bright); box-shadow: inset 0 0 0 1px rgba(85, 167, 255, .25); background: #12365e; }
+    .binding-card .binding-name { color: #92aab4; font-size: 11px; }.binding-card .binding-key { min-width: 34px; height: 28px; display: grid; place-items: center; padding: 0 7px; border: 1px solid #568ecc; border-radius: 4px; color: #effaff; background: #154a91; font-size: 12px; font-weight: 800; }
+    .binding-entry { display: grid; grid-template-columns: minmax(0, 1fr) 28px; gap: 5px; }.binding-clear { border: 1px solid #4a5e67; border-radius: 5px; color: #9cafb6; background: #14242c; font-size: 15px; }.binding-clear:hover { border-color: #a86c70; color: #f1a0a5; }
+    .direction-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-top: 8px; padding: 7px; border: 1px solid #2d4954; border-radius: 6px; background: #102027; }
+    .direction-output { min-height: 28px; display: grid; place-items: center; border: 1px solid #284a64; border-radius: 4px; color: #a7d7ff; background: #122c42; font-size: 10px; font-weight: 800; }.direction-output.center { color: #66e4d8; background: #15363b; }
+    .adjust-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; color: #9cb1ba; font-size: 11px; }.adjust-row input[type="range"] { flex: 1; accent-color: var(--blue-bright); }.adjust-row b { min-width: 29px; color: #aee4ff; text-align: right; font-size: 11px; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; color: #a6bac1; font-size: 12px; }.toggle-row input { accent-color: var(--blue-bright); }
+    .property-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 12px; }.mini-button { height: 31px; border: 1px solid #3b5a68; border-radius: 5px; color: #c0d1d6; background: #152832; font-size: 12px; font-weight: 700; }.mini-button:hover { border-color: #6491a4; }.mini-button.danger { border-color: #79474d; color: #f09aa0; }
+    .keyboard-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }.keyboard-head h2 { margin: 0; }.key-library { display: grid; gap: 5px; }.key-row { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }.key-row.function { grid-template-columns: repeat(6, 1fr); }.keyboard-key { height: 28px; display: grid; place-items: center; padding: 0 3px; border: 1px solid #35546b; border-radius: 4px; color: #c9e6fb; background: #142b3c; font-size: 10px; font-weight: 800; }.keyboard-key:hover { border-color: #78b5e7; background: #1a4260; }.keyboard-key.wide { grid-column: span 2; }.keyboard-key.space { grid-column: span 4; }
+    .component-library { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }.component-button { min-height: 38px; display: flex; align-items: center; gap: 6px; padding: 6px 7px; border: 1px solid #304b58; border-radius: 5px; color: #b9cbd1; background: #14242c; text-align: left; font-size: 11px; }.component-button:hover { border-color: #5c8aac; background: #173243; }.component-button b { color: var(--blue-bright); font-size: 14px; }
+    .mapping-list { border-top: 1px solid #2a414c; }.mapping-row { min-height: 29px; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(55px, 1fr); align-items: center; gap: 7px; border-bottom: 1px solid #2a414c; color: #bdced3; font-size: 11px; }.mapping-row i { color: #66808c; font-style: normal; }.mapping-row b { color: #a9dcff; text-align: right; font-size: 10px; }
+    .empty-selection { color: #829aa5; font-size: 12px; line-height: 1.65; }
+
+    .modal { position: fixed; z-index: 10; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(2, 9, 13, .74); }.modal.show { display: flex; }.preview-card { width: 680px; max-width: 86vw; padding: 18px; border: 1px solid #476473; border-radius: 10px; background: #14232d; box-shadow: 0 27px 80px rgba(0, 0, 0, .62); }.preview-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }.preview-head h2 { margin: 0; font-size: 16px; }.preview-head p { margin: 5px 0 0; color: #8da5af; font-size: 12px; }.preview-close { width: 28px; height: 28px; border: 1px solid #415e6c; border-radius: 5px; color: #ccdde1; background: #1b303b; font-size: 18px; }.preview-phone { position: relative; width: 100%; aspect-ratio: 20 / 9; overflow: hidden; border: 5px solid #263a45; border-radius: 20px; background: linear-gradient(#286583 0 50%, #356d53 50%); }.preview-road { position: absolute; top: 0; bottom: 0; left: 44%; width: 16%; background: #b7ae77; transform: skewX(-18deg); }.preview-control { position: absolute; min-width: 23px; height: 23px; display: grid; place-items: center; padding: 0 5px; border: 1px solid #78b9ff; border-radius: 50%; color: #f3fbff; background: rgba(19, 76, 164, .86); font-size: 8px; font-weight: 800; }.preview-control.wide { min-width: 42px; border-radius: 4px; }
+
+    @media (max-width: 1320px) { .app { min-width: 0; }.shell { grid-template-columns: 214px minmax(520px, 1fr) 326px; }.editor { padding-inline: 14px; }.phone-frame { width: 94%; }.stage { min-height: 445px; }.toolbar-actions .button { padding-inline: 8px; }.window-tools { display: none; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="titlebar">
+      <span class="brand-mark">K</span><span class="brand">PhoneKB Studio</span><span class="crumb">/ 手柄布局 / Switch</span><span class="prototype-badge">桌面编辑器</span><span class="window-tools">— □ ×</span>
+    </header>
+    <div class="shell">
+      <aside class="layouts">
+        <div class="aside-head"><span>手柄布局</span><button class="icon-button" id="newLayout" title="新建布局">+</button></div>
+        <span class="section-label">我的布局</span><div id="layoutList"></div>
+        <span class="section-label">从模板新建</span>
+        <button class="layout-item" data-template="shooter"><span class="layout-icon">⌁</span><b>双摇杆射击</b><small>移动、视角、射击键</small></button>
+        <button class="layout-item" data-template="blank"><span class="layout-icon">▦</span><b>空白横屏布局</b><small>从零开始布置键位</small></button>
+        <div class="prototype-note"><b>电脑端编辑</b><br>保存后同步到已连接手机<br><span id="storageStatus">正在读取 PhoneKB 布局</span></div>
+      </aside>
+
+      <main class="editor">
+        <div class="toolbar">
+          <div class="title-group"><span class="layout-title" id="layoutName">Switch 标准布局</span><span class="device-pill">横屏 · 20:9</span></div>
+          <div class="toolbar-actions">
+            <button class="button ghost" id="undoBtn">↶ 撤销</button><button class="button ghost" id="redoBtn">↷ 重做</button><button class="button" id="previewBtn">手机预览</button><button class="button primary" id="saveBtn">保存测试布局</button>
+          </div>
+        </div>
+        <section class="stage">
+          <div class="phone-frame" id="canvas">
+            <div class="game-sky"></div><i class="game-haze"></i><i class="game-haze two"></i><i class="mountain one"></i><i class="mountain two"></i><i class="mountain three"></i><div class="game-field"></div><i class="game-road"></i><i class="game-tree one"></i><i class="game-tree two"></i><i class="game-tree three"></i><span class="canvas-hint" id="canvasHint">UI 编辑 · 拖动组件到游戏操作位置</span>
+          </div>
+        </section>
+        <footer class="statusbar"><span><b>● 桌面编辑</b>　保存后手机端会收到新的手柄布局</span><span id="toast">UI 与字母分层编辑，绑定关系不受位置影响</span></footer>
+      </main>
+
+      <aside class="inspector">
+        <div class="inspector-tabs"><button class="tab active" data-edit-mode="ui">编辑 UI</button><button class="tab" data-edit-mode="key">编辑字母</button><button class="button tab-action" id="exportBtn">导出 JSON</button></div>
+        <div class="layer-note" id="layerNote"></div>
+        <div id="propertyPanel"></div>
+        <section class="settings-section"><div class="keyboard-head"><h2>字母库</h2><span class="capture-state" id="libraryState">点击添加字母</span></div><div class="key-library" id="keyLibrary"></div></section>
+        <section class="settings-section"><h2>添加控件</h2><div class="component-library" id="componentLibrary"></div></section>
+        <section class="settings-section"><h2>当前布局映射</h2><div class="mapping-list" id="mappingList"></div></section>
+      </aside>
+    </div>
+  </div>
+
+  <div class="modal" id="previewModal"><section class="preview-card"><div class="preview-head"><div><h2>手机横屏预览</h2><p>按实际 20:9 比例显示，编辑时不会写入手机端。</p></div><button class="preview-close" id="closePreview" title="关闭">×</button></div><div class="preview-phone" id="previewPhone"><i class="preview-road"></i></div></section></div>
+
+  <script>
+    const STORAGE_KEY = 'phonekb.gamepad-editor.backup.v1';
+    const REMOTE_EDITOR = location.protocol.startsWith('http') && location.port === '9878';
+    const AUTH_QUERY = location.search || '';
+    const TYPE_INFO = {
+      leftStick: { title: '左摇杆', icon: '◉', mode: '八方向键盘', label: '移动', slots: ['up', 'left', 'down', 'right'] },
+      rightStick: { title: '右摇杆', icon: '◌', mode: '鼠标视角', label: '视角', slots: [] },
+      dpad: { title: '十字方向键', icon: '✚', mode: '方向键', label: '方向键', slots: ['up', 'left', 'down', 'right'] },
+      abxy: { title: 'Switch 按键组', icon: 'ABXY', mode: '独立按键', label: 'ABXY', slots: ['a', 'b', 'x', 'y'] },
+      shoulder: { title: '肩键 / 扳机', icon: '▭', mode: '键盘按键', label: '肩键', slots: ['press'] },
+      key: { title: '键盘按键', icon: '⌨', mode: '键盘按键', label: '按键', slots: ['press'] },
+      mouse: { title: '鼠标区域', icon: '⌁', mode: '鼠标视角', label: '鼠标区域', slots: [] },
+      macro: { title: '组合键 / 宏', icon: '+', mode: '组合键', label: '组合键', slots: ['press'] }
+    };
+    const COMPONENTS = ['leftStick', 'rightStick', 'dpad', 'abxy', 'shoulder', 'key', 'mouse', 'macro'];
+    const uid = () => 'c_' + Math.random().toString(36).slice(2, 10);
+    const clone = value => JSON.parse(JSON.stringify(value));
+    const defaults = () => ({
+      activeLayoutId: 'switch-standard', selectedControlId: 'left-stick', selectedKeyId: 'key-w', layouts: [
+        { id: 'switch-standard', name: 'Switch 标准布局', icon: '◉', keys: [
+          { id: 'key-shift', value: 'Shift', x: 5, y: 7, size: 100, opacity: 100 }, { id: 'key-q', value: 'Q', x: 6, y: 17, size: 100, opacity: 100 },
+          { id: 'key-ctrl', value: 'Ctrl', x: 84, y: 7, size: 100, opacity: 100 }, { id: 'key-e', value: 'E', x: 84, y: 17, size: 100, opacity: 100 },
+          { id: 'key-w', value: 'W', x: 10, y: 54, size: 86, opacity: 100 }, { id: 'key-a', value: 'A', x: 4, y: 67, size: 86, opacity: 100 }, { id: 'key-s', value: 'S', x: 10, y: 80, size: 86, opacity: 100 }, { id: 'key-d', value: 'D', x: 16, y: 67, size: 86, opacity: 100 },
+          { id: 'key-tab', value: 'Tab', x: 37, y: 74, size: 76, opacity: 100 }, { id: 'key-f12', value: 'F12', x: 44, y: 74, size: 76, opacity: 100 }, { id: 'key-esc', value: 'Esc', x: 56, y: 74, size: 76, opacity: 100 }, { id: 'key-home', value: 'Home', x: 63, y: 74, size: 76, opacity: 100 },
+          { id: 'key-i', value: 'I', x: 86, y: 50, size: 86, opacity: 100 }, { id: 'key-u', value: 'U', x: 80, y: 62, size: 86, opacity: 100 }, { id: 'key-j', value: 'J', x: 92, y: 62, size: 86, opacity: 100 }, { id: 'key-k', value: 'K', x: 86, y: 75, size: 86, opacity: 100 }
+        ], controls: [
+          { id: 'zl', type: 'shoulder', label: 'ZL', x: 5, y: 7, size: 100, opacity: 100, bindings: { press: 'key-shift' }, variant: 'wide' }, { id: 'l', type: 'shoulder', label: 'L', x: 6, y: 17, size: 100, opacity: 100, bindings: { press: 'key-q' }, variant: 'wide' },
+          { id: 'zr', type: 'shoulder', label: 'ZR', x: 84, y: 7, size: 100, opacity: 100, bindings: { press: 'key-ctrl' }, variant: 'wide' }, { id: 'r', type: 'shoulder', label: 'R', x: 84, y: 17, size: 100, opacity: 100, bindings: { press: 'key-e' }, variant: 'wide' },
+          { id: 'left-stick', type: 'leftStick', label: '移动', x: 10, y: 67, size: 100, opacity: 100, bindings: { up: 'key-w', left: 'key-a', down: 'key-s', right: 'key-d' } },
+          { id: 'minus', type: 'key', label: '减号', x: 37, y: 74, size: 72, opacity: 100, bindings: { press: 'key-tab' }, variant: 'wide' }, { id: 'capture', type: 'key', label: '截图', x: 44, y: 74, size: 72, opacity: 100, bindings: { press: 'key-f12' }, variant: 'wide' }, { id: 'plus', type: 'key', label: '加号', x: 56, y: 74, size: 72, opacity: 100, bindings: { press: 'key-esc' }, variant: 'wide' }, { id: 'home', type: 'key', label: '主页', x: 63, y: 74, size: 72, opacity: 100, bindings: { press: 'key-home' }, variant: 'wide' },
+          { id: 'abxy', type: 'abxy', label: 'ABXY', x: 86, y: 62, size: 100, opacity: 100, bindings: { a: 'key-j', b: 'key-k', x: 'key-u', y: 'key-i' } }, { id: 'right-stick', type: 'rightStick', label: '视角', x: 69, y: 68, size: 100, opacity: 85, bindings: {}, sensitivity: 55 }
+        ] },
+        { id: 'switch-racing', name: 'Switch 赛车布局', icon: '◌', controls: [], keys: [] }, { id: 'arcade', name: '格斗街机布局', icon: '✚', controls: [], keys: [] }
+      ]
+    });
+
+    let state = loadState();
+    let history = [];
+    let future = [];
+    let drag = null;
+    let editMode = 'ui';
+    let bindingTarget = null;
+    let keyCaptureId = null;
+    let ignoreNextClick = false;
+
+    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
+    function activeLayout() { return state.layouts.find(layout => layout.id === state.activeLayoutId) || state.layouts[0]; }
+    function selectedControl() { return activeLayout().controls.find(control => control.id === state.selectedControlId) || null; }
+    function pushHistory(snapshot = state) { history.push(clone(snapshot)); if (history.length > 40) history.shift(); future = []; }
+    function toast(message, good = false) { const target = document.getElementById('toast'); target.textContent = message; target.className = good ? 'toast good' : 'toast'; }
+    function controlStyle(control) { return `left:${control.x}%;top:${control.y}%;opacity:${(control.opacity ?? 100) / 100};transform:translate(-50%,-50%) scale(${(control.size ?? 100) / 100});`; }
+    function keyDisplay(value) { return String(value || '未设').replace(/ArrowUp/g, '↑').replace(/ArrowDown/g, '↓').replace(/ArrowLeft/g, '←').replace(/ArrowRight/g, '→').replace(/Control/g, 'Ctrl').replace(/Escape/g, 'Esc').replace(/ /g, ' '); }
+
+    function bindingSlots(control) { return TYPE_INFO[control.type]?.slots || []; }
+    function legacyBindingValues(control) {
+      const raw = String(control.mapping || '').trim().split(/\s+/).filter(Boolean);
+      if (control.type === 'leftStick') return { up: raw[0] || 'W', left: raw[1] || 'A', down: raw[2] || 'S', right: raw[3] || 'D' };
+      if (control.type === 'dpad') return { up: raw[0] || '↑', down: raw[1] || '↓', left: raw[2] || '←', right: raw[3] || '→' };
+      if (control.type === 'abxy') return { a: raw[0] || 'J', b: raw[1] || 'K', x: raw[2] || 'U', y: raw[3] || 'I' };
+      return bindingSlots(control).length ? { press: control.mapping || 'Space' } : {};
+    }
+    function slotPosition(control, slot) {
+      const offsets = { up: [0, -13], left: [-6, 0], down: [0, 13], right: [6, 0], y: [0, -12], x: [-6, 0], a: [6, 0], b: [0, 13], press: [0, 0] };
+      const [dx, dy] = offsets[slot] || [0, 0]; return { x: Math.max(3, Math.min(97, control.x + dx)), y: Math.max(4, Math.min(96, control.y + dy)) };
+    }
+    function createKey(layout, value, position) { const key = { id: uid(), value: keyDisplay(value), x: position.x, y: position.y, size: 100, opacity: 100 }; layout.keys.push(key); return key; }
+    function migrateLayout(layout) {
+      layout.controls = Array.isArray(layout.controls) ? layout.controls : [];
+      layout.keys = Array.isArray(layout.keys) ? layout.keys : [];
+      layout.keys.forEach(key => { key.size ??= 100; key.opacity ??= 100; key.value = keyDisplay(key.value); });
+      layout.controls.forEach(control => {
+        const info = TYPE_INFO[control.type] || TYPE_INFO.key; control.size ??= 100; control.opacity ??= 100; control.label ??= info.label; control.bindings ??= legacyBindingValues(control);
+        if (control.type === 'rightStick' || control.type === 'mouse') control.sensitivity ??= 55;
+        bindingSlots(control).forEach(slot => {
+          const target = control.bindings[slot];
+          if (!target) return;
+          if (layout.keys.some(key => key.id === target)) return;
+          const reusable = layout.keys.find(key => key.value === keyDisplay(target));
+          control.bindings[slot] = (reusable || createKey(layout, target, slotPosition(control, slot))).id;
+        });
+      });
+      return layout;
+    }
+    function migrate(candidate) {
+      if (!candidate || !Array.isArray(candidate.layouts) || !candidate.layouts.length) return defaults();
+      candidate.layouts.forEach(migrateLayout);
+      if (!candidate.layouts.some(layout => layout.id === candidate.activeLayoutId)) candidate.activeLayoutId = candidate.layouts[0].id;
+      const layout = candidate.layouts.find(item => item.id === candidate.activeLayoutId);
+      if (!layout.controls.some(control => control.id === candidate.selectedControlId)) candidate.selectedControlId = layout.controls[0]?.id || null;
+      if (!layout.keys.some(key => key.id === candidate.selectedKeyId)) candidate.selectedKeyId = layout.keys[0]?.id || null;
+      return candidate;
+    }
+    function loadState() { try { const saved = localStorage.getItem(STORAGE_KEY); if (saved) return migrate(JSON.parse(saved)); } catch (error) {} return defaults(); }
+    async function loadFromDesktop() {
+      if (!REMOTE_EDITOR) return;
+      try {
+        const response = await fetch('/api/gamepad-layouts' + AUTH_QUERY, { cache: 'no-store' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        state = migrate(await response.json()); history = []; future = []; render();
+        document.getElementById('storageStatus').textContent = '已连接 PhoneKB · ' + new Date().toLocaleTimeString();
+        toast('已载入电脑端手柄布局', true);
+      } catch (error) {
+        document.getElementById('storageStatus').textContent = '读取失败：' + error.message;
+        toast('无法读取 PhoneKB 手柄布局：' + error.message);
+      }
+    }
+
+    function keyById(id) { return activeLayout().keys.find(key => key.id === id) || null; }
+    function selectedKey() { return keyById(state.selectedKeyId); }
+    function bindingValue(control, slot) { return keyById(control.bindings?.[slot])?.value || '未绑定'; }
+    function bindingSummary(control) {
+      if (control.type === 'leftStick') return ['up', 'left', 'down', 'right'].map(slot => bindingValue(control, slot)).join(' ');
+      if (control.type === 'dpad') return ['up', 'down', 'left', 'right'].map(slot => bindingValue(control, slot)).join(' ');
+      if (control.type === 'abxy') return `A ${bindingValue(control, 'a')} · B ${bindingValue(control, 'b')} · X ${bindingValue(control, 'x')} · Y ${bindingValue(control, 'y')}`;
+      if (control.type === 'rightStick' || control.type === 'mouse') return '鼠标移动';
+      return bindingValue(control, 'press');
+    }
+    function controlTypeName(control) { return TYPE_INFO[control.type]?.title || '按键'; }
+
+    function renderLayouts() {
+      const target = document.getElementById('layoutList');
+      target.innerHTML = state.layouts.map(layout => `<button class="layout-item ${layout.id === state.activeLayoutId ? 'active' : ''}" data-layout-id="${escapeHtml(layout.id)}"><span class="layout-icon">${escapeHtml(layout.icon || '◉')}</span><b>${escapeHtml(layout.name)}</b><small>${layout.controls.length} 个控件 · ${layout.id === state.activeLayoutId ? '当前编辑' : '测试布局'}</small><span class="layout-more">•••</span></button>`).join('');
+      target.querySelectorAll('[data-layout-id]').forEach(button => button.addEventListener('click', () => {
+        state.activeLayoutId = button.dataset.layoutId;
+        state.selectedControlId = activeLayout().controls[0]?.id || null;
+        state.selectedKeyId = activeLayout().keys[0]?.id || null;
+        bindingTarget = null; keyCaptureId = null; render();
+      }));
+    }
+    function renderControl(control) {
+      const stateClass = control.id === state.selectedControlId ? ' selected' : '';
+      const lockClass = control.locked ? ' locked' : '';
+      const root = `class="control${stateClass}${lockClass}" data-kind="control" data-control-id="${escapeHtml(control.id)}" style="${controlStyle(control)}"`;
+      const caption = `<span class="control-caption">${escapeHtml(control.label)}</span>`;
+      if (control.type === 'leftStick') return `<div ${root}><div class="ui-surface ui-stick"><span class="ui-label">移动</span></div>${caption}</div>`;
+      if (control.type === 'rightStick') return `<div ${root}><div class="ui-surface ui-reticle"></div>${caption}</div>`;
+      if (control.type === 'dpad') return `<div ${root}><div class="ui-surface ui-pad"><span class="up">↑</span><span class="left">←</span><span class="right">→</span><span class="down">↓</span></div>${caption}</div>`;
+      if (control.type === 'abxy') return `<div ${root}><div class="ui-surface ui-face"><span class="ui-y">Y</span><span class="ui-x">X</span><span class="ui-a">A</span><span class="ui-b">B</span></div>${caption}</div>`;
+      if (control.type === 'mouse') return `<div ${root}><div class="ui-surface ui-mouse">鼠标区域</div>${caption}</div>`;
+      const shape = control.type === 'key' ? ' round' : ''; const wide = control.variant === 'wide' ? ' wide' : '';
+      return `<div ${root}><div class="ui-surface ui-button${shape}${wide}">${escapeHtml(control.label)}</div>${caption}</div>`;
+    }
+    function renderKey(key) {
+      const stateClass = key.id === state.selectedKeyId ? ' selected' : ''; const lockClass = key.locked ? ' locked' : '';
+      const bindingControl = bindingTarget && activeLayout().controls.find(control => control.id === bindingTarget.controlId);
+      const targetClass = bindingControl?.bindings?.[bindingTarget.slot] === key.id ? ' binding-target' : '';
+      const wide = String(key.value).length > 2 ? ' wide' : '';
+      return `<div class="letter-object${stateClass}${lockClass}${targetClass}" data-kind="key" data-key-id="${escapeHtml(key.id)}" style="${controlStyle(key)}"><span class="letter-token${wide}">${escapeHtml(key.value)}</span></div>`;
+    }
+    function renderCanvas() {
+      const canvas = document.getElementById('canvas');
+      canvas.dataset.editMode = editMode; canvas.querySelectorAll('.control, .letter-object').forEach(node => node.remove());
+      activeLayout().keys.forEach(key => canvas.insertAdjacentHTML('beforeend', renderKey(key)));
+      activeLayout().controls.forEach(control => canvas.insertAdjacentHTML('beforeend', renderControl(control)));
+      canvas.querySelectorAll('.control, .letter-object').forEach(node => {
+        node.addEventListener('pointerdown', beginDrag);
+        node.addEventListener('click', event => { event.stopPropagation(); if (ignoreNextClick) { ignoreNextClick = false; return; } if (node.dataset.kind === 'key') selectKey(node.dataset.keyId); else selectControl(node.dataset.controlId); });
+      });
+      canvas.onclick = event => { if (event.target === canvas) { if (editMode === 'ui') state.selectedControlId = null; else state.selectedKeyId = null; bindingTarget = null; keyCaptureId = null; render(); } };
+    }
+
+    function directionOutput(control) {
+      const plus = (...slots) => slots.map(slot => bindingValue(control, slot)).filter(value => value !== '未绑定').join(' + ') || '—';
+      return `<div class="direction-panel"><span class="direction-output">${escapeHtml(plus('up', 'left'))}</span><span class="direction-output">${escapeHtml(bindingValue(control, 'up'))}</span><span class="direction-output">${escapeHtml(plus('up', 'right'))}</span><span class="direction-output">${escapeHtml(bindingValue(control, 'left'))}</span><span class="direction-output center">8 向</span><span class="direction-output">${escapeHtml(bindingValue(control, 'right'))}</span><span class="direction-output">${escapeHtml(plus('down', 'left'))}</span><span class="direction-output">${escapeHtml(bindingValue(control, 'down'))}</span><span class="direction-output">${escapeHtml(plus('down', 'right'))}</span></div>`;
+    }
+    function bindingCard(control, slot, label) {
+      const active = bindingTarget?.controlId === control.id && bindingTarget?.slot === slot ? ' active' : '';
+      return `<div class="binding-entry"><button class="binding-card${active}" data-bind-slot="${slot}"><span class="binding-name">${label}</span><span class="binding-key">${escapeHtml(bindingValue(control, slot))}</span></button><button class="binding-clear" data-clear-slot="${slot}" title="解除绑定">×</button></div>`;
+    }
+    function renderBindingSettings(control) {
+      if (control.type === 'leftStick') return `<section class="settings-section"><h2>方向绑定 <span>绑定独立字母，自动组合八方向</span></h2><div class="bind-help"><span>点击绑定项，再到画布选择或添加字母</span><span class="capture-state">${bindingTarget ? '选择字母中' : '可编辑'}</span></div><div class="binding-grid two">${bindingCard(control, 'up', '上方向')}${bindingCard(control, 'left', '左方向')}${bindingCard(control, 'down', '下方向')}${bindingCard(control, 'right', '右方向')}</div>${directionOutput(control)}</section>`;
+      if (control.type === 'dpad') return `<section class="settings-section"><h2>方向绑定</h2><div class="bind-help"><span>点击绑定项，再到画布选择或添加字母</span><span class="capture-state">${bindingTarget ? '选择字母中' : '可编辑'}</span></div><div class="binding-grid two">${bindingCard(control, 'up', '上方向')}${bindingCard(control, 'left', '左方向')}${bindingCard(control, 'down', '下方向')}${bindingCard(control, 'right', '右方向')}</div></section>`;
+      if (control.type === 'abxy') return `<section class="settings-section"><h2>功能键绑定 <span>每个功能绑定一个独立字母</span></h2><div class="bind-help"><span>点击绑定项，再到画布选择或添加字母</span><span class="capture-state">${bindingTarget ? '选择字母中' : '可编辑'}</span></div><div class="binding-grid four">${bindingCard(control, 'y', 'Y 按键')}${bindingCard(control, 'x', 'X 按键')}${bindingCard(control, 'b', 'B 按键')}${bindingCard(control, 'a', 'A 按键')}</div></section>`;
+      if (control.type === 'rightStick' || control.type === 'mouse') return `<section class="settings-section"><h2>鼠标视角 <span>运行时由电脑鼠标控制</span></h2><div class="mode-badge"><i></i><span>鼠标移动 · ${control.type === 'rightStick' ? '右摇杆' : '触控区域'}</span></div><div class="adjust-row"><span>移动灵敏度</span><input type="range" id="sensitivityRange" min="1" max="100" value="${control.sensitivity ?? 55}"><b id="sensitivityText">${control.sensitivity ?? 55}</b></div><label class="toggle-row"><span>显示准星标记</span><input type="checkbox" id="reticleToggle" ${control.reticle === false ? '' : 'checked'}></label></section>`;
+      return `<section class="settings-section"><h2>字母绑定</h2><div class="bind-help"><span>点击绑定项，再到画布选择或添加字母</span><span class="capture-state">${bindingTarget ? '选择字母中' : '可编辑'}</span></div><div class="binding-grid">${bindingCard(control, 'press', control.type === 'macro' ? '执行组合键' : '触发按键')}</div></section>`;
+    }
+    function visualSettings(item, subject) { return `<section class="settings-section"><h2>外观与位置</h2><div class="adjust-row"><span>${subject}大小</span><input type="range" id="sizeRange" min="50" max="200" value="${item.size}"><b id="sizeText">${item.size}%</b></div><div class="adjust-row"><span>不透明度</span><input type="range" id="opacityRange" min="30" max="100" value="${item.opacity}"><b id="opacityText">${item.opacity}%</b></div><label class="toggle-row"><span>锁定画布位置</span><input type="checkbox" id="lockItem" ${item.locked ? 'checked' : ''}></label></section>`; }
+    function attachVisualSettings(panel, item) {
+      const sizeRange = panel.querySelector('#sizeRange'); let sizeRecorded = false; sizeRange.addEventListener('input', event => { if (!sizeRecorded) { pushHistory(); sizeRecorded = true; } item.size = Number(event.target.value); panel.querySelector('#sizeText').textContent = item.size + '%'; renderCanvas(); }); sizeRange.addEventListener('change', () => { sizeRecorded = false; });
+      const opacityRange = panel.querySelector('#opacityRange'); let opacityRecorded = false; opacityRange.addEventListener('input', event => { if (!opacityRecorded) { pushHistory(); opacityRecorded = true; } item.opacity = Number(event.target.value); panel.querySelector('#opacityText').textContent = item.opacity + '%'; renderCanvas(); }); opacityRange.addEventListener('change', () => { opacityRecorded = false; });
+      panel.querySelector('#lockItem').addEventListener('change', event => { pushHistory(); item.locked = event.target.checked; render(); });
+    }
+    function renderUiPropertyPanel(panel) {
+      const control = selectedControl();
+      if (!control) { panel.innerHTML = `<section class="settings-section"><h2>当前选中 UI</h2><p class="empty-selection">在画布选择摇杆、按键或鼠标区域。UI 只定义触摸外观与点击范围，电脑按键由独立字母层提供。</p></section>`; return; }
+      panel.innerHTML = `<section class="settings-section"><h2>当前选中 UI <span>${escapeHtml(controlTypeName(control))}</span></h2><label class="field-label">UI 名称</label><input class="field" id="controlLabel" value="${escapeHtml(control.label)}"><label class="field-label">操作模式</label><div class="mode-badge"><i></i><span>${escapeHtml(control.mode || TYPE_INFO[control.type].mode)}</span></div></section>${renderBindingSettings(control)}${visualSettings(control, 'UI')}<section class="settings-section"><div class="property-actions"><button class="mini-button" id="duplicateControl">复制 UI</button><button class="mini-button danger" id="deleteControl">删除 UI</button></div></section>`;
+      panel.querySelector('#controlLabel').addEventListener('change', event => { pushHistory(); control.label = event.target.value.trim() || TYPE_INFO[control.type].label; render(); });
+      panel.querySelectorAll('[data-bind-slot]').forEach(button => button.addEventListener('click', () => startBinding(control.id, button.dataset.bindSlot)));
+      panel.querySelectorAll('[data-clear-slot]').forEach(button => button.addEventListener('click', () => clearBinding(control, button.dataset.clearSlot)));
+      attachVisualSettings(panel, control); panel.querySelector('#duplicateControl').addEventListener('click', () => duplicateControl(control)); panel.querySelector('#deleteControl').addEventListener('click', () => deleteControl(control.id));
+      const sensitivity = panel.querySelector('#sensitivityRange'); if (sensitivity) { let recorded = false; sensitivity.addEventListener('input', event => { if (!recorded) { pushHistory(); recorded = true; } control.sensitivity = Number(event.target.value); panel.querySelector('#sensitivityText').textContent = control.sensitivity; }); sensitivity.addEventListener('change', () => { recorded = false; }); panel.querySelector('#reticleToggle').addEventListener('change', event => { pushHistory(); control.reticle = event.target.checked; }); }
+    }
+    function renderKeyPropertyPanel(panel) {
+      const key = selectedKey();
+      if (!key) { panel.innerHTML = `<section class="settings-section"><h2>当前选中字母</h2><p class="empty-selection">从下方字母库添加按键，或在画布上选择一个字母。字母可独立移动、缩放，也能同时绑定多个 UI。</p></section>`; return; }
+      const links = activeLayout().controls.flatMap(control => bindingSlots(control).filter(slot => control.bindings?.[slot] === key.id).map(slot => `${control.label} · ${slot}`));
+      panel.innerHTML = `<section class="settings-section"><h2>当前选中字母</h2><div class="mode-badge"><i></i><span>电脑键盘：<b>${escapeHtml(key.value)}</b></span></div><div class="bind-help" style="margin-top:10px"><span>${links.length ? `已绑定 ${links.join('、')}` : '尚未绑定 UI，可自由摆放'}</span></div><button class="mini-button" id="captureLetter" style="width:100%">按实体键修改字母</button></section>${visualSettings(key, '字母')}<section class="settings-section"><div class="property-actions"><button class="mini-button" id="duplicateKey">复制字母</button><button class="mini-button danger" id="deleteKey">删除字母</button></div></section>`;
+      panel.querySelector('#captureLetter').addEventListener('click', () => { keyCaptureId = key.id; document.getElementById('libraryState').textContent = '请按下实体键'; toast('现在按下电脑键盘上的按键以修改该字母'); });
+      attachVisualSettings(panel, key); panel.querySelector('#duplicateKey').addEventListener('click', () => duplicateKey(key)); panel.querySelector('#deleteKey').addEventListener('click', () => deleteKey(key.id));
+    }
+    function renderPropertyPanel() { const panel = document.getElementById('propertyPanel'); if (editMode === 'ui') renderUiPropertyPanel(panel); else renderKeyPropertyPanel(panel); }
+
+    function renderKeyLibrary() {
+      const target = document.getElementById('keyLibrary');
+      const rows = [
+        ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Enter'],
+        ['Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Shift', 'Ctrl', 'Alt'],
+        ['Tab', 'Esc', 'Space', '↑', '↓', '←', '→'],
+        ['F1', 'F2', 'F3', 'F4', 'Home', 'Backspace']
+      ];
+      target.innerHTML = rows.map((row, index) => `<div class="key-row ${index === 5 ? 'function' : ''}">${row.map(key => `<button class="keyboard-key ${key === 'Space' ? 'space' : ['Shift', 'Ctrl', 'Enter', 'Backspace'].includes(key) ? 'wide' : ''}" data-key-value="${key}">${key === 'Space' ? '空格' : escapeHtml(key)}</button>`).join('')}</div>`).join('');
+      target.querySelectorAll('[data-key-value]').forEach(button => button.addEventListener('click', () => addLetter(button.dataset.keyValue)));
+    }
+    function renderComponentLibrary() {
+      const target = document.getElementById('componentLibrary');
+      target.innerHTML = COMPONENTS.map(type => `<button class="component-button" data-add="${type}"><b>${escapeHtml(TYPE_INFO[type].icon)}</b><span>${escapeHtml(TYPE_INFO[type].title)}</span></button>`).join('');
+      target.querySelectorAll('[data-add]').forEach(button => button.addEventListener('click', () => addControl(button.dataset.add)));
+    }
+    function renderMappingList() {
+      const target = document.getElementById('mappingList');
+      const controls = activeLayout().controls;
+      target.innerHTML = controls.length ? controls.map(control => `<div class="mapping-row"><span>${escapeHtml(control.label)}</span><i>→</i><b>${escapeHtml(bindingSummary(control))}</b></div>`).join('') : '<div class="empty-selection" style="padding:10px 0">当前布局还没有控件</div>';
+    }
+    function renderMode() {
+      document.querySelectorAll('[data-edit-mode]').forEach(button => button.classList.toggle('active', button.dataset.editMode === editMode));
+      document.getElementById('canvasHint').textContent = editMode === 'ui' ? 'UI 编辑 · 拖动组件到游戏操作位置' : '字母编辑 · 字母可独立移动、缩放并脱离 UI';
+      document.getElementById('layerNote').innerHTML = editMode === 'ui' ? '<b>编辑 UI</b>：选择触摸组件，设置其绑定的字母。切换到字母层可调整字母位置和大小。' : '<b>编辑字母</b>：字母是独立对象。拖动或缩放不会影响它与 UI 的绑定关系。';
+      const library = document.getElementById('libraryState');
+      if (keyCaptureId) library.textContent = '请按下实体键'; else if (bindingTarget) library.textContent = '点击添加并绑定字母'; else library.textContent = '点击添加独立字母';
+    }
+    function render() { document.getElementById('layoutName').textContent = activeLayout().name; renderLayouts(); renderMode(); renderCanvas(); renderPropertyPanel(); renderKeyLibrary(); renderComponentLibrary(); renderMappingList(); updateButtons(); }
+    function updateButtons() { document.getElementById('undoBtn').disabled = !history.length; document.getElementById('redoBtn').disabled = !future.length; }
+
+    function selectEditMode(mode) { editMode = mode; bindingTarget = null; keyCaptureId = null; render(); }
+    function selectControl(id) { state.selectedControlId = id; bindingTarget = null; keyCaptureId = null; editMode = 'ui'; render(); }
+    function selectKey(id) {
+      if (bindingTarget) { finishBinding(id); return; }
+      state.selectedKeyId = id; keyCaptureId = null; editMode = 'key'; render();
+    }
+    function beginDrag(event) {
+      const kind = event.currentTarget.dataset.kind;
+      const id = kind === 'key' ? event.currentTarget.dataset.keyId : event.currentTarget.dataset.controlId;
+      const item = kind === 'key' ? keyById(id) : activeLayout().controls.find(control => control.id === id);
+      if (!item || item.locked) return;
+      event.preventDefault(); event.stopPropagation();
+      const canvas = document.getElementById('canvas');
+      const snapshot = clone(state);
+      if (kind === 'key') state.selectedKeyId = id; else state.selectedControlId = id;
+      keyCaptureId = null; document.querySelectorAll('.control.selected, .letter-object.selected').forEach(node => node.classList.remove('selected'));
+      event.currentTarget.classList.add('selected'); renderPropertyPanel(); renderMode();
+      drag = { item, node: event.currentTarget, rect: canvas.getBoundingClientRect(), startX: event.clientX, startY: event.clientY, originalX: item.x, originalY: item.y, snapshot, moved: false, historyAdded: false };
+      drag.node.classList.add('dragging'); drag.node.setPointerCapture(event.pointerId);
+      drag.node.addEventListener('pointermove', dragMove); drag.node.addEventListener('pointerup', endDrag, { once: true }); drag.node.addEventListener('pointercancel', endDrag, { once: true });
+    }
+    function dragMove(event) {
+      if (!drag) return;
+      const dx = ((event.clientX - drag.startX) / drag.rect.width) * 100;
+      const dy = ((event.clientY - drag.startY) / drag.rect.height) * 100;
+      if (Math.abs(dx) > .2 || Math.abs(dy) > .2) { drag.moved = true; if (!drag.historyAdded) { pushHistory(drag.snapshot); drag.historyAdded = true; } }
+      drag.item.x = Math.max(2, Math.min(98, drag.originalX + dx)); drag.item.y = Math.max(4, Math.min(96, drag.originalY + dy));
+      drag.node.style.left = drag.item.x + '%'; drag.node.style.top = drag.item.y + '%';
+    }
+    function endDrag(event) {
+      if (!drag) return;
+      const completed = drag;
+      completed.node.classList.remove('dragging'); completed.node.removeEventListener('pointermove', dragMove);
+      if (event && completed.node.hasPointerCapture(event.pointerId)) completed.node.releasePointerCapture(event.pointerId);
+      drag = null;
+      if (completed.moved) {
+        ignoreNextClick = true;
+        renderPropertyPanel();
+        toast('已移动画布对象，保存后仅写入独立测试数据', true);
+      }
+      updateButtons();
+    }
+
+    function startBinding(controlId, slot) { bindingTarget = { controlId, slot }; keyCaptureId = null; editMode = 'key'; render(); toast('请选择画布中的已有字母，或从字母库添加一个新字母'); }
+    function finishBinding(keyId) { const control = activeLayout().controls.find(item => item.id === bindingTarget?.controlId); if (!control) return; pushHistory(); control.bindings[bindingTarget.slot] = keyId; const value = keyById(keyId)?.value || '字母'; bindingTarget = null; state.selectedKeyId = keyId; render(); toast(`${control.label} 已绑定字母 ${value}`, true); }
+    function clearBinding(control, slot) { if (!control.bindings?.[slot]) return; pushHistory(); delete control.bindings[slot]; bindingTarget = null; render(); toast('已解除字母绑定'); }
+    function capturedKey(event) {
+      const plain = { ' ': 'Space', Escape: 'Esc', Enter: 'Enter', Tab: 'Tab', Backspace: 'Backspace', ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→', Control: 'Ctrl', Shift: 'Shift', Alt: 'Alt' };
+      const key = plain[event.key] || (event.key.length === 1 ? event.key.toUpperCase() : event.key);
+      const modifiers = [];
+      if (event.ctrlKey && key !== 'Ctrl') modifiers.push('Ctrl');
+      if (event.shiftKey && key !== 'Shift') modifiers.push('Shift');
+      if (event.altKey && key !== 'Alt') modifiers.push('Alt');
+      return [...modifiers, key].join(' + ');
+    }
+    document.addEventListener('keydown', event => {
+      if (!keyCaptureId) return;
+      event.preventDefault(); event.stopPropagation(); const key = keyById(keyCaptureId); if (!key) return;
+      pushHistory(); key.value = capturedKey(event); keyCaptureId = null; render(); toast('字母已修改为 ' + key.value, true);
+    }, true);
+
+    function addControl(type) {
+      const info = TYPE_INFO[type]; const layout = activeLayout(); pushHistory();
+      const index = layout.controls.length; const control = { id: uid(), type, label: info.label, mode: info.mode, x: 50 + (index % 3) * 5, y: 48 + (index % 2) * 8, size: 100, opacity: 100, bindings: {} };
+      if (type === 'shoulder') control.label = 'L'; if (type === 'key') control.label = '新按键'; if (type === 'macro') control.label = '组合键'; if (type === 'rightStick' || type === 'mouse') control.sensitivity = 55;
+      layout.controls.push(control); state.selectedControlId = control.id; bindingTarget = null; keyCaptureId = null; editMode = 'ui'; render(); toast(`已添加${info.title}。在右侧绑定已有字母，或新增字母后绑定。`, true);
+    }
+    function addLetter(value) {
+      const layout = activeLayout(); pushHistory(); const target = bindingTarget ? activeLayout().controls.find(control => control.id === bindingTarget.controlId) : null;
+      const position = target ? slotPosition(target, bindingTarget.slot) : { x: 48 + (layout.keys.length % 5) * 5, y: 48 + (layout.keys.length % 3) * 7 };
+      const key = createKey(layout, value, position); state.selectedKeyId = key.id;
+      if (target) { target.bindings[bindingTarget.slot] = key.id; toast(`${target.label} 已绑定新字母 ${key.value}`, true); bindingTarget = null; } else toast(`已添加字母 ${key.value}，可在画布中独立移动和缩放`, true);
+      keyCaptureId = null; editMode = 'key'; render();
+    }
+    function duplicateControl(control) { pushHistory(); const copied = clone(control); copied.id = uid(); copied.label = control.label + ' 副本'; copied.x = Math.min(95, control.x + 5); copied.y = Math.min(94, control.y + 5); activeLayout().controls.push(copied); state.selectedControlId = copied.id; bindingTarget = null; keyCaptureId = null; editMode = 'ui'; render(); toast('已复制 UI；副本沿用相同字母绑定', true); }
+    function duplicateKey(key) { pushHistory(); const copy = clone(key); copy.id = uid(); copy.x = Math.min(96, key.x + 5); copy.y = Math.min(94, key.y + 5); activeLayout().keys.push(copy); state.selectedKeyId = copy.id; bindingTarget = null; keyCaptureId = null; editMode = 'key'; render(); toast('已复制独立字母', true); }
+    function deleteControl(id) { if (!confirm('删除这个 UI？')) return; pushHistory(); const layout = activeLayout(); layout.controls = layout.controls.filter(control => control.id !== id); state.selectedControlId = layout.controls[0]?.id || null; bindingTarget = null; keyCaptureId = null; render(); toast('已删除 UI，字母不会被删除'); }
+    function deleteKey(id) { if (!confirm('删除这个字母？所有绑定到它的 UI 将变为未绑定。')) return; pushHistory(); const layout = activeLayout(); layout.keys = layout.keys.filter(key => key.id !== id); layout.controls.forEach(control => bindingSlots(control).forEach(slot => { if (control.bindings?.[slot] === id) delete control.bindings[slot]; })); state.selectedKeyId = layout.keys[0]?.id || null; bindingTarget = null; keyCaptureId = null; render(); toast('已删除字母，并解除关联 UI 的绑定'); }
+    function newLayout(template) { const defaultName = template === 'blank' ? '空白横屏布局' : '双摇杆射击布局'; const name = prompt('输入布局名称', defaultName); if (!name?.trim()) return; pushHistory(); const source = defaults().layouts[0]; const include = ['left-stick', 'right-stick', 'abxy']; const controls = template === 'shooter' ? source.controls.filter(control => include.includes(control.id)).map(clone) : []; const keyIds = new Set(controls.flatMap(control => Object.values(control.bindings))); const keys = template === 'shooter' ? source.keys.filter(key => keyIds.has(key.id)).map(clone) : []; const idMap = new Map(keys.map(key => [key.id, uid()])); keys.forEach(key => { key.id = idMap.get(key.id); }); controls.forEach(control => { control.id = uid(); Object.entries(control.bindings).forEach(([slot, keyId]) => { control.bindings[slot] = idMap.get(keyId); }); }); const layout = { id: uid(), name: name.trim(), icon: template === 'blank' ? '▦' : '⌁', controls, keys }; state.layouts.push(layout); state.activeLayoutId = layout.id; state.selectedControlId = layout.controls[0]?.id || null; state.selectedKeyId = layout.keys[0]?.id || null; bindingTarget = null; keyCaptureId = null; editMode = 'ui'; render(); toast('已创建独立测试布局', true); }
+    async function save() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (error) {}
+      if (!REMOTE_EDITOR) { document.getElementById('storageStatus').textContent = '浏览器备份：' + new Date().toLocaleTimeString(); toast('当前为独立预览，布局仅保存到浏览器', true); return; }
+      try {
+        const response = await fetch('/api/gamepad-layouts' + AUTH_QUERY, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(state) });
+        const result = await response.json();
+        if (!response.ok || !result.ok) throw new Error(result.msg || '保存失败');
+        state = migrate(result.data); history = []; future = []; render();
+        document.getElementById('storageStatus').textContent = '已同步手机：' + new Date().toLocaleTimeString();
+        toast('手柄布局已保存，已连接手机会收到新的布局', true);
+      } catch (error) { toast('保存到 PhoneKB 失败：' + error.message); }
+    }
+    function exportJson() { const data = JSON.stringify({ schema_version: 3, prototype: true, layers: ['ui', 'keys'], layout: activeLayout() }, null, 2); const blob = new Blob([data], { type: 'application/json' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = activeLayout().name + '.json'; link.click(); URL.revokeObjectURL(url); toast('已导出当前独立测试布局', true); }
+    function renderPreview() { const target = document.getElementById('previewPhone'); target.querySelectorAll('.preview-control').forEach(node => node.remove()); activeLayout().controls.forEach(control => { const node = document.createElement('span'); node.className = 'preview-control' + (['shoulder', 'key', 'macro'].includes(control.type) ? ' wide' : ''); node.style.left = control.x + '%'; node.style.top = control.y + '%'; node.style.transform = 'translate(-50%, -50%)'; node.textContent = control.label; target.appendChild(node); }); }
+    function openPreview() { renderPreview(); document.getElementById('previewModal').classList.add('show'); }
+    function undo() { if (!history.length) return; future.push(clone(state)); state = migrate(history.pop()); bindingTarget = null; keyCaptureId = null; render(); toast('已撤销'); }
+    function redo() { if (!future.length) return; history.push(clone(state)); state = migrate(future.pop()); bindingTarget = null; keyCaptureId = null; render(); toast('已重做'); }
+
+    document.getElementById('newLayout').addEventListener('click', () => newLayout('blank'));
+    document.querySelectorAll('[data-edit-mode]').forEach(button => button.addEventListener('click', () => selectEditMode(button.dataset.editMode)));
+    document.querySelectorAll('[data-template]').forEach(button => button.addEventListener('click', () => newLayout(button.dataset.template)));
+    document.getElementById('saveBtn').addEventListener('click', save);
+    document.getElementById('exportBtn').addEventListener('click', exportJson);
+    document.getElementById('previewBtn').addEventListener('click', openPreview);
+    document.getElementById('closePreview').addEventListener('click', () => document.getElementById('previewModal').classList.remove('show'));
+    document.getElementById('previewModal').addEventListener('click', event => { if (event.target.id === 'previewModal') event.currentTarget.classList.remove('show'); });
+    document.getElementById('undoBtn').addEventListener('click', undo); document.getElementById('redoBtn').addEventListener('click', redo);
+    render();
+    loadFromDesktop();
+  </script>
+</body>
+</html>

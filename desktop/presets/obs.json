@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "id": "obs",
+  "name": "OBS Studio",
+  "icon": "🎥",
+  "built_in": true,
+  "match": {
+    "process": ["obs64.exe", "obs32.exe"],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "scenes",
+      "name": "场景",
+      "icon": "🎬",
+      "slots": [
+        { "r": 0, "c": 0, "span": 2, "key": { "id": "obs_scene1", "label": "场景 1", "sub": "Ctrl+1", "icon": "1️⃣", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "1"} } },
+        { "r": 0, "c": 2, "span": 2, "key": { "id": "obs_scene2", "label": "场景 2", "sub": "Ctrl+2", "icon": "2️⃣", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "2"} } },
+        { "r": 1, "c": 0, "span": 2, "key": { "id": "obs_scene3", "label": "场景 3", "sub": "Ctrl+3", "icon": "3️⃣", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "3"} } },
+        { "r": 1, "c": 2, "span": 2, "key": { "id": "obs_scene4", "label": "场景 4", "sub": "Ctrl+4", "icon": "4️⃣", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "4"} } },
+        { "r": 2, "c": 0, "span": 4, "key": { "id": "obs_prev",   "label": "预览场景", "sub": "", "icon": "👁", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "f11"} } }
+      ]
+    },
+    {
+      "id": "rec",
+      "name": "录制",
+      "icon": "⏺",
+      "slots": [
+        { "r": 0, "c": 0, "span": 2, "key": { "id": "obs_start",  "label": "开始录制", "sub": "Ctrl+F9", "icon": "🔴", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "f9"} } },
+        { "r": 0, "c": 2, "span": 2, "key": { "id": "obs_stop",   "label": "停止录制", "sub": "Ctrl+F10", "icon": "⏹", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": true, "shortcut": {"modifiers": ["ctrl"], "key": "f10"} } },
+        { "r": 1, "c": 0, "span": 2, "key": { "id": "obs_pause",  "label": "暂停", "sub": "Ctrl+F11", "icon": "⏸", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "f11"} } },
+        { "r": 1, "c": 2, "span": 2, "key": { "id": "obs_stream", "label": "推流", "sub": "Ctrl+F12", "icon": "📡", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": true, "shortcut": {"modifiers": ["ctrl"], "key": "f12"} } },
+        { "r": 2, "c": 0, "span": 2, "key": { "id": "obs_mute",   "label": "静音", "sub": "Ctrl+Shift+M", "icon": "🔇", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "m"} } },
+        { "r": 2, "c": 2, "span": 2, "key": { "id": "obs_unmute", "label": "取消静音", "sub": "Ctrl+Shift+M", "icon": "🔊", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "m"} } }
+      ]
+    }
+  ]
+}

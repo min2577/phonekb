@@ -1,0 +1,20 @@
+{
+  "name": "phonekb-android",
+  "version": "0.3.3",
+  "description": "手机键盘 - Android 客户端",
+  "scripts": {
+    "dev:app-plus": "node scripts/uni-cli.cjs -p app-plus",
+    "build:app-plus": "node scripts/uni-cli.cjs build -p app-plus",
+    "test": "node test/test_net.js && node test/test_mouse_gesture.js && node test/test_touchpad_controller.js && node test/test_spp_protocol.js && node test/test_appearance_config.js && node test/test_wsclient.js && node test/test_gamepad_editor_store.js && node test/test_app_settings.js && node test/test_transient_toast.js && node test/test_jianying_workbench_config.js && node test/test_jianying_gesture.js && node test/test_jianying_editor_integration.js && node test/test_tab_config.js && node test/test_codex_micro_config.js && node test/test_codex_notification.js && node test/test_codex_status_styles.js && node test/test_widget_fullscreen.js"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-alpha-5010220260604001",
+    "@dcloudio/uni-app-plus": "3.0.0-alpha-5010220260604001",
+    "vue": "3.4.21"
+  },
+  "devDependencies": {
+    "@dcloudio/uni-uts-v1": "^3.0.0-alpha-5010220260604001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5010220260604001",
+    "vite": "5.2.8"
+  }
+}

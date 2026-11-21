@@ -1,0 +1,556 @@
+import BluetoothAdapter from 'android.bluetooth.BluetoothAdapter'
+import BluetoothDevice from 'android.bluetooth.BluetoothDevice'
+import BluetoothHidDevice from 'android.bluetooth.BluetoothHidDevice'
+import BluetoothHidDeviceAppSdpSettings from 'android.bluetooth.BluetoothHidDeviceAppSdpSettings'
+import BluetoothProfile from 'android.bluetooth.BluetoothProfile'
+import BluetoothSocket from 'android.bluetooth.BluetoothSocket'
+import Build from 'android.os.Build'
+import Base64 from 'android.util.Base64'
+import DataInputStream from 'java.io.DataInputStream'
+import DataOutputStream from 'java.io.DataOutputStream'
+import IOException from 'java.io.IOException'
+import JavaString from 'java.lang.String'
+import Runnable from 'java.lang.Runnable'
+import SecurityException from 'java.lang.SecurityException'
+import Thread from 'java.lang.Thread'
+import UUID from 'java.util.UUID'
+import ExecutorService from 'java.util.concurrent.ExecutorService'
+import Executors from 'java.util.concurrent.Executors'
+import StandardCharsets from 'java.nio.charset.StandardCharsets'
+import { SppEvent, SppEventCallback, ConnectOptions, Connect, Send, HidStartOptions, HidStart, HidMouseMove, HidMouseButton, HidMouseWheel, HidKeyboardKey, HidKeyboardShortcut, HidConsumerKey, HidClose, Close } from '../interface.uts'
+
+const SPP_UUID = '00001101-0000-1000-8000-00805F9B34FB'
+const SPP_MAGIC: Int = 0x504B4232
+const MAX_PAYLOAD: Int = 256 * 1024
+const HID_MOUSE_REPORT_ID: Int = 1
+const HID_KEYBOARD_REPORT_ID: Int = 2
+const HID_CONSUMER_REPORT_ID: Int = 3
+const HID_DESCRIPTOR_BASE64 = 'BQEJAqEBCQGhAIUBBQkZASkDFQAlAZUDdQGBApUBdQWBAwUBCTAJMQk4FYElf3UIlQOBBsDABQEJBqEBhQIFBxngKecVACUBdQGVCIEClQF1CIEBlQZ1CBUAJWUFBxkAKWWBAMAFDAkBoQGFAxUAJv8DGQAq/wN1EJUBgQDA'
+
+let socket: BluetoothSocket | null = null
+let input: DataInputStream | null = null
+let output: DataOutputStream | null = null
+let writer: ExecutorService | null = null
+let callback: SppEventCallback | null = null
+let generation: Int = 0
+let hidDevice: BluetoothHidDevice | null = null
+let hidTarget: BluetoothDevice | null = null
+let hidExecutor: ExecutorService | null = null
+let hidCallback: SppEventCallback | null = null
+let hidGeneration: Int = 0
+let hidConnected: boolean = false
+let hidButtons: Int = 0
+let hidModifierCounts = ByteArray(8)
+let hidKeyboardKeys = ByteArray(6)
+let hidKeyboardKeyCounts = ByteArray(6)
+
+function emit(type: string, message: string | null = null, payload: string | null = null): void {
+  const event: SppEvent = { type: type }
+  if (message != null) event.message = message
+  if (payload != null) event.payload = payload
+  callback?.(event)
+}
+
+function errorText(error: Throwable): string {
+  return error.message ?? error.toString()
+}
+
+function emitHid(type: string, message: string | null = null): void {
+  const event: SppEvent = { type: type }
+  if (message != null) event.message = message
+  hidCallback?.(event)
+}
+
+function hidCloseInternal(clearCallback: boolean): void {
+  hidGeneration++
+  hidConnected = false
+  const device = hidDevice
+  const target = hidTarget
+  try { if (device != null && target != null) device.disconnect(target) } catch (_: Throwable) {}
+  try { device?.unregisterApp() } catch (_: Throwable) {}
+  try {
+    const adapter = BluetoothAdapter.getDefaultAdapter()
+    if (adapter != null && device != null) adapter.closeProfileProxy(BluetoothProfile.HID_DEVICE, device)
+  } catch (_: Throwable) {}
+  try { hidExecutor?.shutdownNow() } catch (_: Throwable) {}
+  hidDevice = null
+  hidTarget = null
+  hidExecutor = null
+  hidButtons = 0
+  hidModifierCounts = ByteArray(8)
+  hidKeyboardKeys = ByteArray(6)
+  hidKeyboardKeyCounts = ByteArray(6)
+  if (clearCallback) hidCallback = null
+}
+
+class HidDeviceCallback extends BluetoothHidDevice.Callback {
+  private token: Int
+
+  constructor(token: Int) {
+    super()
+    this.token = token
+  }
+
+  override onAppStatusChanged(pluggedDevice: BluetoothDevice | null, registered: boolean): void {
+    if (this.token != hidGeneration) return
+    if (!registered) {
+      hidConnected = false
+      emitHid('hid_error', 'Windows HID 输入设备注册失败')
+      return
+    }
+    emitHid('hid_registered')
+    const device = hidDevice
+    const target = hidTarget
+    if (device == null || target == null || !device.connect(target)) {
+      emitHid('hid_error', 'Windows HID 输入通道连接失败；旧配对可能需要在手机和 Windows 两端删除后重新配对')
+      return
+    }
+    emitHid('hid_connecting')
+  }
+
+  override onConnectionStateChanged(device: BluetoothDevice, state: Int): void {
+    if (this.token != hidGeneration) return
+    if (state == BluetoothProfile.STATE_CONNECTED) {
+      hidConnected = true
+      emitHid('hid_connected')
+    } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
+      const wasConnected = hidConnected
+      hidConnected = false
+      emitHid(wasConnected ? 'hid_disconnected' : 'hid_error', 'Windows HID 输入通道未连接；旧配对可能需要在手机和 Windows 两端删除后重新配对')
+    }
+  }
+}
+
+class HidServiceListener implements BluetoothProfile.ServiceListener {
+  private token: Int
+
+  constructor(token: Int) {
+    this.token = token
+  }
+
+  override onServiceConnected(profile: Int, proxy: BluetoothProfile): void {
+    if (this.token != hidGeneration || profile != BluetoothProfile.HID_DEVICE) return
+    try {
+      const device = proxy as BluetoothHidDevice
+      hidDevice = device
+      const descriptor = Base64.decode(HID_DESCRIPTOR_BASE64, Base64.DEFAULT)
+      const settings = new BluetoothHidDeviceAppSdpSettings(
+        'PhoneKB Input',
+        'PhoneKB Mouse and Keyboard',
+        'PhoneKB',
+        BluetoothHidDevice.SUBCLASS1_COMBO,
+        descriptor
+      )
+      const executor = Executors.newSingleThreadExecutor()
+      hidExecutor = executor
+      if (!device.registerApp(settings, null, null, executor, new HidDeviceCallback(this.token))) {
+        emitHid('hid_error', '系统拒绝注册 HID 输入设备')
+      }
+    } catch (error: Throwable) {
+      emitHid('hid_error', '注册 HID 输入设备失败: ' + errorText(error))
+    }
+  }
+
+  override onServiceDisconnected(profile: Int): void {
+    if (this.token != hidGeneration || profile != BluetoothProfile.HID_DEVICE) return
+    hidConnected = false
+    hidDevice = null
+    emitHid('hid_disconnected', '系统 HID 服务已断开')
+  }
+}
+
+function sendHidMouseReport(dx: Int, dy: Int, wheel: Int): boolean {
+  const device = hidDevice
+  const target = hidTarget
+  if (!hidConnected || device == null || target == null) return false
+  const report = ByteArray(4)
+  report[0] = hidButtons.toByte()
+  report[1] = dx.toByte()
+  report[2] = dy.toByte()
+  report[3] = wheel.toByte()
+  return device.sendReport(target, HID_MOUSE_REPORT_ID, report)
+}
+
+function sendHidKeyboardReport(): boolean {
+  const device = hidDevice
+  const target = hidTarget
+  if (!hidConnected || device == null || target == null) return false
+  const report = ByteArray(8)
+  let modifiers: Int = 0
+  for (let index: Int = 0; index < 8; index++) {
+    if (hidModifierCounts[index].toInt() > 0) modifiers = modifiers | (1 << index)
+  }
+  report[0] = modifiers.toByte()
+  for (let index: Int = 0; index < 6; index++) report[index + 2] = hidKeyboardKeys[index]
+  return device.sendReport(target, HID_KEYBOARD_REPORT_ID, report)
+}
+
+function sendHidConsumerReport(usage: Int): boolean {
+  const device = hidDevice
+  const target = hidTarget
+  if (!hidConnected || device == null || target == null) return false
+  const report = ByteArray(2)
+  report[0] = (usage & 0xff).toByte()
+  report[1] = ((usage >> 8) & 0xff).toByte()
+  return device.sendReport(target, HID_CONSUMER_REPORT_ID, report)
+}
+
+function normalizeHidName(value: string): string {
+  return value.trim().toLowerCase()
+}
+
+function hidModifierIndex(value: string): Int {
+  const key = normalizeHidName(value)
+  if (key == 'ctrl' || key == 'control' || key == 'lctrl' || key == 'leftctrl') return 0
+  if (key == 'shift' || key == 'lshift' || key == 'leftshift') return 1
+  if (key == 'alt' || key == 'lalt' || key == 'leftalt') return 2
+  if (key == 'win' || key == 'meta' || key == 'cmd' || key == 'super' || key == 'lwin' || key == 'leftwin') return 3
+  if (key == 'rctrl' || key == 'rightctrl') return 4
+  if (key == 'rshift' || key == 'rightshift') return 5
+  if (key == 'ralt' || key == 'rightalt') return 6
+  if (key == 'rwin' || key == 'rightwin') return 7
+  return -1
+}
+
+function hidKeyboardUsage(value: string): Int {
+  const key = normalizeHidName(value)
+  const letterIndex = 'abcdefghijklmnopqrstuvwxyz'.indexOf(key)
+  if (key.length == 1 && letterIndex >= 0) return (0x04 + letterIndex).toInt()
+  const digitIndex = '1234567890'.indexOf(key)
+  if (key.length == 1 && digitIndex >= 0) return (0x1e + digitIndex).toInt()
+  if (key == 'enter' || key == 'return') return 0x28
+  if (key == 'esc' || key == 'escape') return 0x29
+  if (key == 'backspace' || key == 'bksp') return 0x2a
+  if (key == 'tab') return 0x2b
+  if (key == 'space' || key == 'spacebar') return 0x2c
+  if (key == '-' || key == 'minus') return 0x2d
+  if (key == '=' || key == 'equal') return 0x2e
+  if (key == '[' || key == 'leftbracket') return 0x2f
+  if (key == ']' || key == 'rightbracket') return 0x30
+  if (key == '\\' || key == 'backslash') return 0x31
+  if (key == ';' || key == 'semicolon') return 0x33
+  if (key == "'" || key == 'quote') return 0x34
+  if (key == '`' || key == 'backquote' || key == 'grave') return 0x35
+  if (key == ',' || key == 'comma') return 0x36
+  if (key == '.' || key == 'period') return 0x37
+  if (key == '/' || key == 'slash') return 0x38
+  if (key == 'caps' || key == 'capslock') return 0x39
+  if (key == 'f1') return 0x3a
+  if (key == 'f2') return 0x3b
+  if (key == 'f3') return 0x3c
+  if (key == 'f4') return 0x3d
+  if (key == 'f5') return 0x3e
+  if (key == 'f6') return 0x3f
+  if (key == 'f7') return 0x40
+  if (key == 'f8') return 0x41
+  if (key == 'f9') return 0x42
+  if (key == 'f10') return 0x43
+  if (key == 'f11') return 0x44
+  if (key == 'f12') return 0x45
+  if (key == 'printscreen' || key == 'prtsc') return 0x46
+  if (key == 'scrolllock') return 0x47
+  if (key == 'pause') return 0x48
+  if (key == 'insert' || key == 'ins') return 0x49
+  if (key == 'home') return 0x4a
+  if (key == 'pageup' || key == 'pgup') return 0x4b
+  if (key == 'delete' || key == 'del') return 0x4c
+  if (key == 'end') return 0x4d
+  if (key == 'pagedown' || key == 'pgdn') return 0x4e
+  if (key == 'right' || key == 'arrowright') return 0x4f
+  if (key == 'left' || key == 'arrowleft') return 0x50
+  if (key == 'down' || key == 'arrowdown') return 0x51
+  if (key == 'up' || key == 'arrowup') return 0x52
+  if (key == 'numlock') return 0x53
+  if (key == 'menu' || key == 'application') return 0x65
+  return 0
+}
+
+function hidConsumerUsage(value: string): Int {
+  const key = normalizeHidName(value)
+  if (key == 'mute') return 0xe2
+  if (key == 'volume_up' || key == 'volumeup' || key == 'volup') return 0xe9
+  if (key == 'volume_down' || key == 'volumedown' || key == 'voldn') return 0xea
+  if (key == 'play_pause' || key == 'playpause') return 0xcd
+  if (key == 'next_track' || key == 'nexttrack') return 0xb5
+  if (key == 'previous_track' || key == 'previoustrack') return 0xb6
+  if (key == 'stop') return 0xb7
+  return 0
+}
+
+function setHidModifier(index: Int, down: boolean): void {
+  const count = hidModifierCounts[index].toInt()
+  if (down) {
+    if (count < 127) hidModifierCounts[index] = (count + 1).toByte()
+  } else if (count > 0) {
+    hidModifierCounts[index] = (count - 1).toByte()
+  }
+}
+
+function setHidKeyboardUsage(usage: Int, down: boolean): boolean {
+  let emptyIndex: Int = -1
+  for (let index: Int = 0; index < 6; index++) {
+    const current = hidKeyboardKeys[index].toInt()
+    if (current == usage) {
+      const count = hidKeyboardKeyCounts[index].toInt()
+      if (down) {
+        if (count < 127) hidKeyboardKeyCounts[index] = (count + 1).toByte()
+      } else if (count > 1) {
+        hidKeyboardKeyCounts[index] = (count - 1).toByte()
+      } else {
+        for (let shift: Int = index; shift < 5; shift++) {
+          hidKeyboardKeys[shift] = hidKeyboardKeys[shift + 1]
+          hidKeyboardKeyCounts[shift] = hidKeyboardKeyCounts[shift + 1]
+        }
+        hidKeyboardKeys[5] = 0
+        hidKeyboardKeyCounts[5] = 0
+      }
+      return true
+    }
+    if (current == 0 && emptyIndex < 0) emptyIndex = index
+  }
+  if (!down) return true
+  if (emptyIndex < 0) return false
+  hidKeyboardKeys[emptyIndex] = usage.toByte()
+  hidKeyboardKeyCounts[emptyIndex] = 1
+  return true
+}
+
+function clampHidDelta(value: Int): Int {
+  if (value > 127) return 127
+  if (value < -127) return -127
+  return value
+}
+
+function clampHidWheel(value: Int): Int {
+  if (value > 127) return 127
+  if (value < -127) return -127
+  return value
+}
+
+function closeResources(notify: boolean): void {
+  generation++
+  try { input?.close() } catch (_: Throwable) {}
+  try { output?.close() } catch (_: Throwable) {}
+  try { socket?.close() } catch (_: Throwable) {}
+  try { writer?.shutdownNow() } catch (_: Throwable) {}
+  input = null
+  output = null
+  socket = null
+  writer = null
+  if (notify) emit('disconnected', '蓝牙连接已断开')
+}
+
+function writePayload(stream: DataOutputStream, payload: string): void {
+  const bytes = payload.toByteArray(StandardCharsets.UTF_8)
+  stream.writeInt(SPP_MAGIC)
+  stream.writeInt(bytes.size)
+  stream.write(bytes)
+  stream.flush()
+}
+
+class ReadRunnable extends Runnable {
+  private token: Int
+  private stream: DataInputStream
+
+  constructor(token: Int, stream: DataInputStream) {
+    super()
+    this.token = token
+    this.stream = stream
+  }
+
+  override run(): void {
+    try {
+      while (this.token == generation) {
+        const magic = this.stream.readInt()
+        if (magic != SPP_MAGIC) throw new IOException('电脑端协议版本不匹配')
+        const length = this.stream.readInt()
+        if (length <= 0 || length > MAX_PAYLOAD) throw new IOException('收到非法蓝牙消息长度: ' + length)
+        const bytes = ByteArray(length)
+        this.stream.readFully(bytes)
+        const text = new JavaString(bytes, StandardCharsets.UTF_8).toString()
+        emit('message', null, text)
+      }
+    } catch (error: Throwable) {
+      if (this.token == generation) {
+        const message = errorText(error)
+        closeResources(false)
+        emit('error', message)
+      }
+    }
+  }
+}
+
+class WriteRunnable extends Runnable {
+  private token: Int
+  private payload: string
+
+  constructor(token: Int, payload: string) {
+    super()
+    this.token = token
+    this.payload = payload
+  }
+
+  override run(): void {
+    if (this.token != generation) return
+    try {
+      const stream = output
+      if (stream == null) throw new IOException('蓝牙输出流未初始化')
+      writePayload(stream, this.payload)
+    } catch (error: Throwable) {
+      if (this.token == generation) {
+        const message = errorText(error)
+        closeResources(false)
+        emit('error', '蓝牙写入失败: ' + message)
+      }
+    }
+  }
+}
+
+class ConnectRunnable extends Runnable {
+  private token: Int
+  private address: string
+
+  constructor(token: Int, address: string) {
+    super()
+    this.token = token
+    this.address = address
+  }
+
+  override run(): void {
+    try {
+      const adapter = BluetoothAdapter.getDefaultAdapter()
+      if (adapter == null) throw new IOException('此设备无蓝牙适配器')
+      if (!adapter.isEnabled()) throw new IOException('蓝牙未打开')
+      // Android 12+ protects cancelDiscovery with BLUETOOTH_SCAN. Discovery is
+      // only a performance concern here, so a missing scan grant must not
+      // prevent an already-paired RFCOMM connection.
+      try { adapter.cancelDiscovery() } catch (_: SecurityException) {}
+      const device = adapter.getRemoteDevice(this.address)
+      const nextSocket = device.createRfcommSocketToServiceRecord(UUID.fromString(SPP_UUID))
+      socket = nextSocket
+      nextSocket.connect()
+      if (this.token != generation) {
+        nextSocket.close()
+        return
+      }
+      const nextInput = new DataInputStream(nextSocket.getInputStream())
+      const nextOutput = new DataOutputStream(nextSocket.getOutputStream())
+      input = nextInput
+      output = nextOutput
+      writer = Executors.newSingleThreadExecutor()
+      new Thread(new ReadRunnable(this.token, nextInput), 'phonekb-spp-reader').start()
+      emit('connected')
+    } catch (error: Throwable) {
+      if (this.token == generation) {
+        const message = errorText(error)
+        closeResources(false)
+        emit('error', '连接失败: ' + message)
+      }
+    }
+  }
+}
+
+@UTSJS.keepAlive
+export function connect(options: ConnectOptions): void {
+  closeResources(false)
+  callback = options.callback
+  const token = generation
+  new Thread(new ConnectRunnable(token, options.address), 'phonekb-spp-connect').start()
+}
+
+export function send(payload: string): boolean {
+  const currentWriter = writer
+  if (currentWriter == null || output == null) return false
+  currentWriter.execute(new WriteRunnable(generation, payload))
+  return true
+}
+
+@UTSJS.keepAlive
+export function hidStart(options: HidStartOptions): void {
+  hidCloseInternal(true)
+  hidCallback = options.callback
+  if (Build.VERSION.SDK_INT < 28) {
+    emitHid('hid_unsupported', '标准蓝牙 HID 需要 Android 9 或更高版本')
+    return
+  }
+  try {
+    const adapter = BluetoothAdapter.getDefaultAdapter()
+    if (adapter == null || !adapter.isEnabled()) {
+      emitHid('hid_error', '蓝牙未打开')
+      return
+    }
+    hidTarget = adapter.getRemoteDevice(options.address)
+    const context = UTSAndroid.getAppContext()
+    if (context == null) {
+      emitHid('hid_error', '无法取得 Android 应用上下文')
+      return
+    }
+    const token = hidGeneration
+    if (!adapter.getProfileProxy(context, new HidServiceListener(token), BluetoothProfile.HID_DEVICE)) {
+      emitHid('hid_error', '手机系统未提供 HID Device Profile')
+    }
+  } catch (error: Throwable) {
+    emitHid('hid_error', '启动 HID 输入设备失败: ' + errorText(error))
+  }
+}
+
+export function hidMouseMove(dx: number, dy: number): boolean {
+  const moveX = dx.toInt()
+  const moveY = dy.toInt()
+  if (moveX == 0 && moveY == 0) return true
+  return sendHidMouseReport(clampHidDelta(moveX), clampHidDelta(moveY), 0)
+}
+
+export function hidMouseButton(button: string, down: boolean): boolean {
+  let mask: Int = 0
+  if (button == 'left') mask = 1
+  else if (button == 'right') mask = 2
+  else if (button == 'middle') mask = 4
+  else return false
+  if (down) hidButtons = hidButtons | mask
+  else hidButtons = hidButtons & mask.inv()
+  return sendHidMouseReport(0, 0, 0)
+}
+
+export function hidMouseWheel(delta: number): boolean {
+  return sendHidMouseReport(0, 0, clampHidWheel(delta.toInt()))
+}
+
+export function hidKeyboardKey(key: string, down: boolean): boolean {
+  const modifierIndex = hidModifierIndex(key)
+  if (modifierIndex >= 0) {
+    setHidModifier(modifierIndex, down)
+    return sendHidKeyboardReport()
+  }
+  const usage = hidKeyboardUsage(key)
+  if (usage == 0 || !setHidKeyboardUsage(usage, down)) return false
+  return sendHidKeyboardReport()
+}
+
+export function hidKeyboardShortcut(modifiers: Array<string>, key: string, down: boolean): boolean {
+  const usage = hidKeyboardUsage(key)
+  if (usage == 0) return false
+  for (let index: Int = 0; index < modifiers.length; index++) {
+    if (hidModifierIndex(modifiers[index]) < 0) return false
+  }
+  if (!setHidKeyboardUsage(usage, down)) return false
+  for (let index: Int = 0; index < modifiers.length; index++) {
+    setHidModifier(hidModifierIndex(modifiers[index]), down)
+  }
+  return sendHidKeyboardReport()
+}
+
+export function hidConsumerKey(key: string, down: boolean): boolean {
+  const usage = hidConsumerUsage(key)
+  if (usage == 0) return false
+  return sendHidConsumerReport(down ? usage : 0)
+}
+
+export function hidClose(): void {
+  hidCloseInternal(true)
+}
+
+export function close(): void {
+  closeResources(false)
+  callback = null
+}

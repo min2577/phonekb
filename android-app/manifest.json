@@ -1,0 +1,55 @@
+{
+    "name" : "手机键盘",
+    "appid" : "__UNI__0000000",
+    "description" : "把手机变成电脑旁的物理按键面板",
+    "versionName" : "0.3.3",
+    "versionCode" : "4",
+    "transformPx" : false,
+    "app-plus" : {
+        "usingComponents" : true,
+        "nvueStyleCompiler" : "uni-app",
+        "compilerVersion" : 3,
+        "splashscreen" : {
+            "alwaysShowBeforeRender" : true,
+            "waiting" : true,
+            "autoclose" : true,
+            "delay" : 0
+        },
+        "modules" : {
+            "Barcode" : {},
+            "Device" : {},
+            "Webview" : {},
+            "Network" : {},
+            "Speech" : {},
+            "Push" : {}
+        },
+        "distribute" : {
+            "android" : {
+                "permissions" : [
+                    "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+                    "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+                    "<uses-permission android:name=\"android.permission.VIBRATE\"/>",
+                    "<uses-permission android:name=\"android.permission.RECORD_AUDIO\"/>",
+                    "<uses-permission android:name=\"android.permission.POST_NOTIFICATIONS\"/>",
+                    "<uses-permission android:name=\"android.permission.BLUETOOTH\" android:maxSdkVersion=\"30\"/>",
+                    "<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\" android:maxSdkVersion=\"30\"/>",
+                    "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" android:maxSdkVersion=\"30\"/>",
+                    "<uses-permission android:name=\"android.permission.BLUETOOTH_SCAN\" android:usesPermissionFlags=\"neverForLocation\"/>",
+                    "<uses-permission android:name=\"android.permission.BLUETOOTH_CONNECT\"/>"
+                ],
+                "minSdkVersion" : 21,
+                "targetSdkVersion" : 35,
+                "abiFilters" : [ "armeabi-v7a", "arm64-v8a" ],
+                "screenOrientation" : [ "sensorLandscape", "sensorPortrait" ]
+            },
+            "ios" : {
+                "dSYMs" : false
+            },
+            "sdkConfigs" : {}
+        }
+    },
+    "quickapp" : {},
+    "vueVersion" : "3"
+}

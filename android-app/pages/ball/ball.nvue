@@ -1,0 +1,43 @@
+﻿<template>
+  <div class="ball-wrap" @click="onTap">
+    <div class="ball-dot"></div>
+    <text class="ball-label">键</text>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      _color: '#3B82F6',
+      _styleId: null,
+    }
+  },
+  mounted() {
+    // 用 weex 原生 API 改背景色,避免 nvue :style 绑定限制
+    this._applyColor(this._color)
+  },
+  methods: {
+    _applyColor(c) {
+      this._color = c
+      try {
+        const el = this.$el
+        if (el && el.style) el.style.backgroundColor = c
+      } catch (e) {}
+    },
+    // 由 panel.vue 通过 subNVue.evalJS('changeColor("#10B981")') 调用
+    changeColor(c) {
+      if (typeof c === 'string' && c.length > 0) this._applyColor(c)
+    },
+    onTap() {
+      try { uni.switchTab({ url: '/pages/panel/panel' }) } catch (e) {}
+    },
+  },
+}
+</script>
+
+<style>
+
+.ball { width: 110rpx; height: 110rpx; border-radius: 50%; background-color: #0078D4; box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; }
+.ball-inner { width: 48rpx; height: 48rpx; border-radius: 50%; background-color: #FFFFFF; opacity: 0.85; }
+</style>

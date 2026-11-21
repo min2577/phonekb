@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="phonekb_focus_accessibility_description">专注期间阻止打开非白名单应用，并返回 PhoneKB 专注页面</string>
+</resources>

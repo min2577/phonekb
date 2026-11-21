@@ -1,0 +1,278 @@
+﻿{
+  "pages": [
+    {
+      "path": "pages/panel/panel",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTextStyle": "white",
+        "navigationBarTitleText": "",
+        "backgroundColor": "#F4F8FD",
+        "navigationBarBackgroundColor": "#F4F8FD"
+      }
+    },
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/bt-settings/bt-settings",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/layout/layout",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/layout/edit-key",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "black",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/codex-micro-edit/codex-micro-edit",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/jianying-workbench-edit/jianying-workbench-edit",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "black",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/jianying-gestures-edit/jianying-gestures-edit",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "black",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/jianying-gesture-edit/jianying-gesture-edit",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "black",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/layouts/layouts",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/devices/devices",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/settings/settings",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/appearance/appearance",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/templates/templates",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/touchpad/touchpad",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/gamepad/gamepad",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTextStyle": "white",
+        "navigationBarTitleText": "",
+        "backgroundColor": "#EAF4FF",
+        "navigationBarBackgroundColor": "#EAF4FF",
+        "pageOrientation": "landscape"
+      }
+    },
+    {
+      "path": "pages/gamepad-edit/gamepad-edit",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTextStyle": "black",
+        "navigationBarTitleText": "",
+        "backgroundColor": "#F4F8FD",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "pageOrientation": "portrait"
+      }
+    },
+    {
+      "path": "pages/full-keyboard/full-keyboard",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#F4F8FD",
+        "pageOrientation": "landscape"
+      }
+    },
+    {
+      "path": "pages/about/about",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/profile/profile",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/widgets-manage/widgets-manage",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/widgets-edit/widgets-edit",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/panel-scheme/panel-scheme",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/focus-mode-setup/focus-mode-setup",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "black",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/focus-mode-whitelist/focus-mode-whitelist",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "black",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/focus-mode-running/focus-mode-running",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#06182F",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom",
+        "disableSwipeBack": true
+      }
+    },
+    {
+      "path": "pages/tab-config/tab-config",
+      "style": {
+        "navigationBarTitleText": "",
+        "navigationBarBackgroundColor": "#F4F8FD",
+        "navigationBarTextStyle": "white",
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#6B7280",
+    "selectedColor": "#3B82F6",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/panel/panel",
+        "text": "面板"
+      },
+      {
+        "pagePath": "pages/layout/layout",
+        "text": "布局"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "手机键盘",
+    "navigationBarBackgroundColor": "#0066cc",
+    "backgroundColor": "#f5f5f5"
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "version": 2,
+  "id": "windows",
+  "name": "Windows 通用",
+  "icon": "🪟",
+  "built_in": true,
+  "match": {
+    "process": [],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "snap",
+      "name": "窗口分屏",
+      "icon": "🔲",
+      "slots": [
+        {
+          "r": 0,
+          "c": 0,
+          "span": 2,
+          "key": {
+            "id": "win_left",
+            "label": "贴左",
+            "sub": "Win+←",
+            "icon": "⬅",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "left"
+            }
+          }
+        },
+        {
+          "r": 0,
+          "c": 2,
+          "span": 2,
+          "key": {
+            "id": "win_right",
+            "label": "贴右",
+            "sub": "Win+→",
+            "icon": "➡",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "right"
+            }
+          }
+        },
+        {
+          "r": 1,
+          "c": 0,
+          "span": 2,
+          "key": {
+            "id": "win_up",
+            "label": "最大化",
+            "sub": "Win+↑",
+            "icon": "⤴",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "up"
+            }
+          }
+        },
+        {
+          "r": 1,
+          "c": 2,
+          "span": 2,
+          "key": {
+            "id": "win_min",
+            "label": "最小化",
+            "sub": "Win+↓",
+            "icon": "⤵",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "down"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 0,
+          "span": 1,
+          "key": {
+            "id": "win_d",
+            "label": "桌面",
+            "sub": "Win+D",
+            "icon": "🖥",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "d"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 1,
+          "span": 1,
+          "key": {
+            "id": "win_e",
+            "label": "资源",
+            "sub": "Win+E",
+            "icon": "📁",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "e"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 2,
+          "span": 1,
+          "key": {
+            "id": "win_l",
+            "label": "锁屏",
+            "sub": "Win+L",
+            "icon": "🔒",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "l"
+            }
+          }
+        },
+        {
+          "r": 2,
+          "c": 3,
+          "span": 1,
+          "key": {
+            "id": "win_tab",
+            "label": "任务视图",
+            "sub": "Win+Tab",
+            "icon": "🗂",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "tab"
+            }
+          }
+        },
+        {
+          "r": 3,
+          "c": 0,
+          "span": 2,
+          "key": {
+            "id": "win_scr",
+            "label": "截图",
+            "sub": "Win+Shift+S",
+            "icon": "📷",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": true
+            },
+            "shortcut": {
+              "modifiers": [
+                "win",
+                "shift"
+              ],
+              "key": "s"
+            }
+          }
+        },
+        {
+          "r": 3,
+          "c": 2,
+          "span": 2,
+          "key": {
+            "id": "win_clip",
+            "label": "剪贴板",
+            "sub": "Win+V",
+            "icon": "📋",
+            "type": "shortcut",
+            "feedback": {
+              "vibrate": true,
+              "sound": false,
+              "toast": false
+            },
+            "shortcut": {
+              "modifiers": [
+                "win"
+              ],
+              "key": "v"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

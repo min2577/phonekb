@@ -1,0 +1,38 @@
+# Dependencies and build output
+node_modules/
+unpackage/
+build*/
+dist*/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.exe
+*.apk
+*.aab
+
+# Local credentials and signing material
+.env
+.env.*
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+project.private.config.json
+
+# Desktop state generated at runtime
+/desktop/pairing.json
+/desktop/layouts.json
+/desktop/custom_keys.json
+/desktop/gamepad_layouts.json
+/desktop/panel_schemes.json
+/desktop/macro_recordings.json
+/desktop/codex_micro_state.json
+/desktop/codex_desktop_bindings.json
+*.lock
+*.log
+*.log.*
+*.bak
+*.bak.*

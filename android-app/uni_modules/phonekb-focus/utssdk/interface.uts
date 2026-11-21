@@ -1,0 +1,14 @@
+export type FocusState = {
+  active: boolean,
+  endAt: number,
+  whitelist: Array<string>,
+}
+
+export type StartFocus = (durationSec: number, whitelist: Array<string>) => boolean
+export type StopFocus = () => boolean
+export type GetFocusState = () => FocusState
+export type IsAccessibilityEnabled = () => boolean
+export type OpenAccessibilitySettings = () => boolean
+export type IsOverlayEnabled = () => boolean
+export type OpenOverlaySettings = () => boolean
+export type OpenAppDetails = () => boolean

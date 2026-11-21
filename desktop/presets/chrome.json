@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "id": "chrome",
+  "name": "Chrome / Edge",
+  "icon": "🌐",
+  "built_in": true,
+  "match": {
+    "process": ["chrome.exe", "msedge.exe", "firefox.exe"],
+    "title_contains": []
+  },
+  "pages": [
+    {
+      "id": "tabs",
+      "name": "标签",
+      "icon": "🗂",
+      "slots": [
+        { "r": 0, "c": 0, "span": 1, "key": { "id": "chrome_newtab",     "label": "新标签",    "sub": "Ctrl+T", "icon": "➕", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "t"} } },
+        { "r": 0, "c": 1, "span": 1, "key": { "id": "chrome_closetab",   "label": "关标签",    "sub": "Ctrl+W", "icon": "❌", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "w"} } },
+        { "r": 0, "c": 2, "span": 1, "key": { "id": "chrome_next",       "label": "下一标签",  "sub": "Ctrl+Tab", "icon": "➡", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "tab"} } },
+        { "r": 0, "c": 3, "span": 1, "key": { "id": "chrome_prev",       "label": "上一标签",  "sub": "Ctrl+Shift+Tab", "icon": "⬅", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "tab"} } },
+        { "r": 1, "c": 0, "span": 1, "key": { "id": "chrome_reopen",     "label": "恢复",      "sub": "Ctrl+Shift+T", "icon": "↩", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl", "shift"], "key": "t"} } },
+        { "r": 1, "c": 1, "span": 1, "key": { "id": "chrome_reload",     "label": "刷新",      "sub": "F5", "icon": "🔄", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "f5"} } },
+        { "r": 1, "c": 2, "span": 1, "key": { "id": "chrome_hardreload", "label": "硬刷",      "sub": "Ctrl+F5", "icon": "💥", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "f5"} } },
+        { "r": 1, "c": 3, "span": 1, "key": { "id": "chrome_find",       "label": "页内查找",  "sub": "Ctrl+F", "icon": "🔍", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "f"} } },
+        { "r": 2, "c": 0, "span": 2, "key": { "id": "chrome_addr",       "label": "地址栏",    "sub": "Ctrl+L", "icon": "🔗", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["ctrl"], "key": "l"} } },
+        { "r": 2, "c": 2, "span": 2, "key": { "id": "chrome_devtools",   "label": "DevTools",  "sub": "F12", "icon": "🛠", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "f12"} } }
+      ]
+    },
+    {
+      "id": "scroll",
+      "name": "滚动",
+      "icon": "📜",
+      "slots": [
+        { "r": 0, "c": 0, "span": 2, "key": { "id": "chrome_top",        "label": "顶部",      "sub": "Home", "icon": "⏫", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "home"} } },
+        { "r": 0, "c": 2, "span": 2, "key": { "id": "chrome_bottom",     "label": "底部",      "sub": "End", "icon": "⏬", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "end"} } },
+        { "r": 1, "c": 0, "span": 2, "key": { "id": "chrome_pgup",       "label": "上页",      "sub": "PgUp", "icon": "🔼", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "pageup"} } },
+        { "r": 1, "c": 2, "span": 2, "key": { "id": "chrome_pgdn",       "label": "下页",      "sub": "PgDn", "icon": "🔽", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": false}, "confirm_on_long_press": false, "shortcut": {"modifiers": [], "key": "pagedown"} } },
+        { "r": 2, "c": 0, "span": 4, "key": { "id": "chrome_back",       "label": "返回",      "sub": "Alt+←", "icon": "⏪", "type": "shortcut", "feedback": {"vibrate": true, "sound": false, "toast": true}, "confirm_on_long_press": false, "shortcut": {"modifiers": ["alt"], "key": "left"} } }
+      ]
+    }
+  ]
+}
