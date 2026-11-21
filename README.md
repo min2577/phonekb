@@ -16,9 +16,9 @@ PhoneKB 是一套把 **安卓手机变成 Codex 控制键盘和 Windows 自定�
 
 ### Codex Micro · 手机上的 Codex 键盘
 
-[![Codex Micro 实机演示动图](docs/media/phonekb-codex-micro-preview.gif)](https://github.com/min2577/phonekb/blob/demo-clips-2026-11-21/phonekb-codex-micro-demo.mp4)
+https://github.com/user-attachments/assets/799d50dd-16a5-4470-89e8-41b82b4e7f2c
 
-[查看 Codex 键盘演示（MP4，约 21 秒）](https://github.com/min2577/phonekb/blob/demo-clips-2026-11-21/phonekb-codex-micro-demo.mp4)
+[Codex 键盘演示原片（MP4，约 21 秒）](https://github.com/min2577/phonekb/blob/demo-clips-2026-11-21/phonekb-codex-micro-demo.mp4)
 
 - **一键在电脑上新建任务**。点手机上的「＋／新任务」键，Windows 上的 Codex Desktop 会打开一个空白任务。写好内容后，可以用手机的回车键提交电脑输入框里的文字。
 - **六个任务槽**。长按槽位，把电脑当前打开的 Codex 任务绑进去。之后点对应槽位就能让电脑跳回那个任务。已绑的槽位还可以改名、重新绑定或解除绑定。
@@ -67,9 +67,9 @@ PhoneKB 是一套把 **安卓手机变成 Codex 控制键盘和 Windows 自定�
 
 我想试试能不能把手机做成一块剪辑副面板。电脑上留着素材和预览，手机上把「分割」「上一帧」「下一帧」放在拇指旁边。比如剪口播时，先逐帧找到停顿，再点一下「分割」，手势区还能用来滚动和缩放时间轴。
 
-[![剪映工作台实验原型实机演示动图](docs/media/phonekb-jianying-workbench-preview.gif)](https://github.com/min2577/phonekb/blob/demo-clips-2026-11-21/phonekb-jianying-workbench-demo.mp4)
+https://github.com/user-attachments/assets/b336f38b-0998-4852-8aa1-9c64e0696bea
 
-[查看剪映工作台实验原型演示（MP4，约 9 秒）](https://github.com/min2577/phonekb/blob/demo-clips-2026-11-21/phonekb-jianying-workbench-demo.mp4)
+[剪映工作台演示原片（MP4，约 9 秒）](https://github.com/min2577/phonekb/blob/demo-clips-2026-11-21/phonekb-jianying-workbench-demo.mp4)
 
 目前做到了可编辑的快捷按钮和时间轴手势。原型会把点击、滑动和双指缩放变成电脑上的键盘和鼠标操作。这个方向做到一半，完整剪辑流程、不同版本和快捷键设置下的适配都还有待验证。如果继续做，我想先把「定位到一帧 → 分割 → 接着预览」这条流程调顺，再探索让手机显示电脑上实际的播放位置。
 
